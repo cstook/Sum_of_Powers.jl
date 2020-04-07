@@ -1,5 +1,4 @@
 module Sum_of_Powers
-using Primes
 import Base.string
 
 struct Solution{T<:Integer,N}
@@ -17,7 +16,12 @@ function Base.string(s::Solution)
     out
 end
 
-s = Solution(15,4,(14,9,8,6,3))
-string(s)
+function err(sol::Solution, acc=BigInt(0))
+    acc = acc + sol.s^s.n
+    for a in sol.a
+        acc = acc - a^s.n
+    end
+    acc
+end
 
 end # module

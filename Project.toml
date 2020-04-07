@@ -4,7 +4,7 @@ authors = ["Christopher Stook <chris@chrisstook.com>"]
 version = "0.1.0"
 
 [deps]
-Primes = "27ebfcd6-29c5-5fa9-bf4b-fb8fc14df3ae"
+BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
 
 [compat]
 julia = "1.4"
