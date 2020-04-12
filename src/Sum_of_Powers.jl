@@ -3,7 +3,7 @@ import Base.string
 import Combinatorics.combinations
 using Plots
 
-export Solution, err, best, test1
+export Solution, err, best, write_best
 
 #=
 struct Solution{T<:Integer,N}
@@ -47,8 +47,8 @@ function improve!(sol::Solution)
     return 3
 end
 
-
-function best(s,n,powers=ntuple(x->x^BigInt(n),s-1))
+powers_tuple(s,n) = ntuple(x->(s-x)^BigInt(n),s-1)
+function best(s,n,powers=powers_tuple(s,n))
     s_to_n = s^(BigInt(n))
     best_e = s_to_n
     best_c = Array{Int,1}[]
@@ -65,21 +65,19 @@ function best(s,n,powers=ntuple(x->x^BigInt(n),s-1))
     Solution(s,n,best_c),best_e
 end
 
-function test1(x)
-    s,e = x
-    t = true
-    for i in 1:length(s.a)
-        if i != s.a[i]
-            t = falses
-        end
-    end
-    s.s,s.n,t,e
+function write_best(io::IO,s,n,powers=powers_tuple(s,n))
+    sol,e = best(s,n,powers)
+    write(io,string(sol),",e=",e)
 end
+
+
+
+
 
 function ns()
     n = 2:17
     s = [4,5,7,8,10,11,12,14,15,17,18,20,21,23,24,26]
-    ns
+    n,s
 end
 
 
