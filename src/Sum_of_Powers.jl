@@ -40,18 +40,19 @@ function random_search(s, n, iterations=1e5,
                              best_e=s^(BigInt(n)),
                              powers=powers_tuple(s,n))
     s_to_n = s^(BigInt(n))
-    best_a = Array{Int,1}[]
-    e = s_to_n
+    best_a = Vector{Int}()
     all_a = Set(1:s-1)
     gotone = false
     for i in 1:iterations
         x = copy(all_a)
+        a = Vector{Int}()
+        e = s_to_n
         while true
-            length(x)>0 && break
+            length(x)==0 && break
             new_a = rand(x)
             pop!(x,new_a)
-            new_e = e - powers(s-new_a)
-            e<0 && abs(e)>abs(best_e) && break
+            new_e = e - powers[s-new_a]
+            abs(new_e)>abs(e) && break
             push!(a,new_a)
             e = new_e
         end
@@ -65,7 +66,7 @@ function random_search(s, n, iterations=1e5,
         end
     end
     if gotone
-        return Solution(s,n,best_a),best_e
+        return Solution(sort(s,rev=true),n,best_a),best_e
     else
         return nothing
     end
