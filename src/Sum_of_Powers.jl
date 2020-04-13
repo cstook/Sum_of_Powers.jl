@@ -3,7 +3,7 @@ import Base.string
 import Combinatorics.combinations
 using Plots
 
-export Solution, err, best, print_best, print_best_to_file
+export Solution, err, best, print_best, print_best_to_file, max_all_a
 
 #=
 struct Solution{T<:Integer,N}
@@ -48,50 +48,46 @@ function improve!(sol::Solution)
 end
 
 powers_tuple(s,n) = ntuple(x->(s-x)^BigInt(n),s-1)
-function bestold(s,n,powers=powers_tuple(s,n))
+function best(s,n,powers=powers_tuple(s,n))
     s_to_n = s^(BigInt(n))
     best_e = s_to_n
+    all = collect(s-1:-1:1)
+    e = s_to_n
+    for i in all
+        e = e - powers[s-i]
+    end
+    if e>=0
+        return Solution(s,n,all),e
+    end
     best_c = Array{Int,1}[]
     for c = combinations(s-1:-1:1)
         e = s_to_n
         for i in c
             e = e - powers[s-i]
+            e<0 && abs(e)>abs(best_e) && break # teminate if hopeless
         end
         if abs(e)<abs(best_e)
             best_e = e
             best_c = c
         end
-    end
-    Solution(s,n,best_c),best_e
-end
-function best(s,n,powers=powers_tuple(s,n))
-    s_to_n = s^(BigInt(n))
-    best_e = s_to_n
-    best_c = Array{Int,1}[]
-    if s>3
-        comb = combinations(s-2:-1:2)
-    else
-        best_c = collect(s-1:-1:1)
-        sol = Solution(s,n,best_c)
-        best_e = err(sol,0)
-        return sol,best_e
-    end
-    for c = comb
-        pushfirst!(c,s-1)
-        e = s_to_n
-        for i in c
-            e = e - powers[s-i]
-        end
-        if abs(e)<abs(best_e)
-            best_e = e
-            best_c = c
-        end
-    end
-    if best_e>0
-        push!(best_c,1)
-        best_e = best_e-1
     end
     return Solution(s,n,best_c),best_e
+end
+
+function max_all_a(n)
+    s=2
+    while true
+        powers=powers_tuple(s,n)
+        all = collect(s-1:-1:1)
+        e = s^(BigInt(n))
+        for i in all
+            e = e - powers[s-i]
+        end
+        if e<0
+            return s-1
+        end
+        s+=1
+    end
 end
 
 function print_best(io::IO,s,n,powers=powers_tuple(s,n))
