@@ -3,7 +3,7 @@ import Base.string
 import Combinatorics.combinations
 using Plots
 
-export Solution, err, best, print_best, print_best_to_file, max_all_a
+export Solution, err, best, print_best, print_best_to_file, max_all_a,random_search
 
 #=
 struct Solution{T<:Integer,N}
@@ -36,6 +36,40 @@ function err(sol::Solution, acc=BigInt(0))
     acc
 end
 
+function random_search(s, n, iterations=1e5,
+                             best_e=s^(BigInt(n)),
+                             powers=powers_tuple(s,n))
+    s_to_n = s^(BigInt(n))
+    best_a = Array{Int,1}[]
+    e = s_to_n
+    all_a = Set(1:s-1)
+    gotone = false
+    for i in 1:iterations
+        x = copy(all_a)
+        while true
+            length(x)>0 && break
+            new_a = rand(x)
+            pop!(x,new_a)
+            new_e = e - powers(s-new_a)
+            e<0 && abs(e)>abs(best_e) && break
+            push!(a,new_a)
+            e = new_e
+        end
+        if abs(e)<abs(best_e)
+            gotone = true
+            best_e = e
+            best_a = a
+        end
+        if best_e == 0
+            break # can't get better
+        end
+    end
+    if gotone
+        return Solution(s,n,best_a),best_e
+    else
+        return nothing
+    end
+end
 
 function improve!(sol::Solution)
     e = err(sol)
@@ -69,6 +103,9 @@ function best(s,n,powers=powers_tuple(s,n))
         if abs(e)<abs(best_e)
             best_e = e
             best_c = c
+        end
+        if best_e == 0
+            break # can't get better
         end
     end
     return Solution(s,n,best_c),best_e
