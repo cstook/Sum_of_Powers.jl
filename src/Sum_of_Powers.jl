@@ -48,7 +48,7 @@ function improve!(sol::Solution)
 end
 
 powers_tuple(s,n) = ntuple(x->(s-x)^BigInt(n),s-1)
-function best(s,n,powers=powers_tuple(s,n))
+function best_old(s,n,powers=powers_tuple(s,n))
     s_to_n = s^(BigInt(n))
     best_e = s_to_n
     best_c = Array{Int,1}[]
@@ -64,6 +64,35 @@ function best(s,n,powers=powers_tuple(s,n))
     end
     Solution(s,n,best_c),best_e
 end
+function best(s,n,powers=powers_tuple(s,n))
+    s_to_n = s^(BigInt(n))
+    best_e = s_to_n
+    best_c = Array{Int,1}[]
+    if s>3
+        comb = combinations(s-2:-1:2)
+    else
+        best_c = collect(s-1:-1:1)
+        sol = Solution(s,n,best_c)
+        best_e = err(sol,0)
+        return sol,best_e
+    end
+    for c = comb
+        pushfirst!(c,s-1)
+        e = s_to_n
+        for i in c
+            e = e - powers[s-i]
+        end
+        if abs(e)<best_e
+            best_e = e
+            best_c = c
+        end
+    end
+    if best_e>0
+        push!(best_c,1)
+        best_e = best_e-1
+    end
+    return Solution(s,n,best_c),best_e
+end
 
 function print_best(io::IO,s,n,powers=powers_tuple(s,n))
     sol,e = best(s,n,powers)
@@ -74,6 +103,7 @@ function print_best_to_file(s_start,s_stop,n,file="data/n$(n)best.txt")
     open(file,"a") do io
         for s in s_start:s_stop
             print_best(io,s,n)
+            flush(io)
         end
     end
 end
