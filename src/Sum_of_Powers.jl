@@ -48,7 +48,7 @@ function improve!(sol::Solution)
 end
 
 powers_tuple(s,n) = ntuple(x->(s-x)^BigInt(n),s-1)
-function best_old(s,n,powers=powers_tuple(s,n))
+function bestold(s,n,powers=powers_tuple(s,n))
     s_to_n = s^(BigInt(n))
     best_e = s_to_n
     best_c = Array{Int,1}[]
@@ -57,7 +57,7 @@ function best_old(s,n,powers=powers_tuple(s,n))
         for i in c
             e = e - powers[s-i]
         end
-        if abs(e)<best_e
+        if abs(e)<abs(best_e)
             best_e = e
             best_c = c
         end
@@ -82,7 +82,7 @@ function best(s,n,powers=powers_tuple(s,n))
         for i in c
             e = e - powers[s-i]
         end
-        if abs(e)<best_e
+        if abs(e)<abs(best_e)
             best_e = e
             best_c = c
         end
