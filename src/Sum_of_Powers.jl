@@ -70,8 +70,8 @@ function print_best(io::IO,s,n,powers=powers_tuple(s,n))
     println(io,string(sol),",e=",string(e))
 end
 
-function print_best_to_file(s_start,s_stop,n)
-    open("data/n$(n)best.txt","a") do io
+function print_best_to_file(s_start,s_stop,n,file="data/n$(n)best.txt")
+    open(file,"a") do io
         for s in s_start:s_stop
             print_best(io,s,n)
         end
