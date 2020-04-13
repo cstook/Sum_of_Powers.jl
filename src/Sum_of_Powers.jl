@@ -3,7 +3,7 @@ import Base.string
 import Combinatorics.combinations
 using Plots
 
-export Solution, err, best, write_best
+export Solution, err, best, print_best, print_best_to_file
 
 #=
 struct Solution{T<:Integer,N}
@@ -52,10 +52,10 @@ function best(s,n,powers=powers_tuple(s,n))
     s_to_n = s^(BigInt(n))
     best_e = s_to_n
     best_c = Array{Int,1}[]
-    for c = combinations(1:s-1)
+    for c = combinations(s-1:-1:1)
         e = s_to_n
         for i in c
-            e = e - powers[i]
+            e = e - powers[s-i]
         end
         if abs(e)<best_e
             best_e = e
@@ -65,10 +65,20 @@ function best(s,n,powers=powers_tuple(s,n))
     Solution(s,n,best_c),best_e
 end
 
-function write_best(io::IO,s,n,powers=powers_tuple(s,n))
+function print_best(io::IO,s,n,powers=powers_tuple(s,n))
     sol,e = best(s,n,powers)
-    write(io,string(sol),",e=",e)
+    println(io,string(sol),",e=",string(e))
 end
+
+function print_best_to_file(s_start,s_stop,n)
+    open("data/n$(n)best.txt","a") do io
+        for s in s_start:s_stop
+            print_best(io,s,n)
+        end
+    end
+end
+
+
 
 
 
