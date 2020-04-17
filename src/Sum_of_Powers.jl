@@ -123,9 +123,6 @@ function best_group!(solution::Solution, group;
                      initial_error=err(solution),
                      s_to_n=solution.s^(BigInt(solution.n))
                     )
-    s = solution.s
-    n = solution.n
-    a = solution.a
     lhs = BigInt(s_to_n)
     a_not_in_group = setdiff(solution.a,group)
     for i in a_not_in_group
