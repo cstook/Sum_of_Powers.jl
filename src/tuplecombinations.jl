@@ -6,5 +6,5 @@ combination_(x,y...) = (x,combination(y)...,map(z->(x,z...),combination(y))...)
 
 combination((1))
 combination((2,3))
-a = combination((2,3,4))
+combination((2,3,4))
 combination((1,2,3,4))
