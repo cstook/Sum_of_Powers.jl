@@ -4,7 +4,8 @@ struct Solution{T<:Integer,N}
     s :: T
     n :: Int
     a :: NTuple{N,T}
-    function Solution(s::T,n::Int,a::NTuple{N,T}) where {T<:Integer,N}
+    function Solution(s::T,n::Int,a) where {T<:Integer}
+        N = length(a)
         @assert N>1
         @assert N<s
         @assert n>15
