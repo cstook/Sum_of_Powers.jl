@@ -34,13 +34,13 @@ function to_string(x,witherror::Bool=false)
     out
 end
 function err(sol::Solution, acc=BigInt(0))
-    err((sol.s,sol.n,sol.a),acc=acc)
+    err((sol.s,sol.n,sol.a),acc)
 end
 function err(x, acc=BigInt(0))
     s,n,a = x
-    acc = acc + s^n
-    for a in sol.a
-        acc = acc - a^n
+    acc = acc + BigInt(s)^n
+    for ak in a
+        acc = acc - BigInt(ak)^n
     end
     acc
 end
