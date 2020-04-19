@@ -1,4 +1,5 @@
 module Sum_of_Powers
+
 export Solution, err
 export search, Best
 
