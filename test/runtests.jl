@@ -14,10 +14,14 @@ end
     @test test_one_positions(0)
     @test test_one_positions(1)
     @test test_one_positions(2)
-    for x in rand(1:Int64(2)^63-1,100)
+    @test test_one_positions(Int16(2)^15-1)
+    @test test_one_positions(Int32(2)^31-1)
+    @test test_one_positions(Int64(2)^63-1)
+    @test test_one_positions(Int128(2)^127-1)
+    for x in rand(1:Int64(2)^63-1,10)
         @test test_one_positions(@show x)
     end
-    for x in rand(1:Int128(2)^127-1,100)
+    for x in rand(1:Int128(2)^127-1,10)
         @test test_one_positions(@show x)
     end
 end
