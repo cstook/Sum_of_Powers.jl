@@ -1,4 +1,4 @@
-using Sum_of_Powers: Solution, err, OnePositions
+using Sum_of_Powers: Solution, err, OnePositions, search, Best
 using Test
 
 @testset "Solution.jl" begin
@@ -17,4 +17,10 @@ end
     for x in rand(1:10000,100)
         @test test_one_positions(x)
     end
+end
+
+@testset "search.jl" begin
+    a_k, e = search(20,10,Best())
+    @test e == BigInt(8584238000)
+    @test a_k == [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 18, 19]
 end
