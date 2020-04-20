@@ -10,12 +10,15 @@ end
 
 
 @testset "OnePositions.jl" begin
-    test_one_positions(x) = sum(map(x_->exp2(x_-1),OnePositions(x))) == x
+    test_one_positions(x::T) where {T<:Integer} = sum(map(x_->T(2)^(x_-1),OnePositions(x))) == x
     @test test_one_positions(0)
     @test test_one_positions(1)
     @test test_one_positions(2)
-    for x in rand(1:10000,100)
-        @test test_one_positions(x)
+    for x in rand(1:Int64(2)^63-1,10)
+        @test test_one_positions(@show x)
+    end
+    for x in rand(1:Int128(2)^127-1,10)
+        @test test_one_positions(@show x)
     end
 end
 
