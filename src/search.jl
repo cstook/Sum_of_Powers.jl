@@ -13,8 +13,22 @@ function search(s::Integer,n::Integer,::Best)
     collect(OnePositions(bc)),best_error
 end
 
-function search(s::Integer, n::Integer, a_k, ss::SubSet)
-
+function search(s::T, n::Integer, initial_a_k::T, ss::SubSet{T}) where {T<:Integer}
+    @assert count_ones(initial_a_k)==s-1
+    s_to_n = BigInt(s)^n
+    lhs = s_to_n
+    not_ss = not_subset(ss.c)
+    for i in  insersect(OnePositions(not_ss),OnePositions(initial_a_k))
+        lhs-=a_k^n
+    end
+    bc_subset,best_error = best_combination(a_k_to_n_in_subset(ss,s-1), lhs)
+    x = collect(OnePositions(ss.c))
+    y = Vector{T}()
+    sizehint!(y,count_ones(bc_subset))
+    for i in OnePositions(bc_subset)
+        push!(y,x[i])
+    end
+    union(y,OnePositions(not_ss)), best_error
 end
 
 function best_combination(a_k_to_n,
@@ -33,4 +47,17 @@ function best_combination(a_k_to_n,
         end
     end
     bc,best_error
+end
+
+function a_k_to_n_in_subset(ss:SubSet{T},n) where {T<:Integer}
+    a_k_to_n = Vector{BigInt}()
+    sizehint!(a_k_to_n,count_ones(ss.c))
+    for i in OnePositions(ss.c)
+        push!(a_k_to_n,BigInt(i^n))
+    end
+    a_k_to_n
+end
+function not_subset(ss::SubSet{T}, number_of_bits) where {T<:Integer}
+    enough_ones = T(2)^(number_of_bits+1)-1
+    enough_ones ⊻ ss.c
 end
