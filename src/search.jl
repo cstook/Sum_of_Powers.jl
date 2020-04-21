@@ -5,20 +5,24 @@ struct SubSet{T<:Integer}
     a::Vector{T}      # subset to optimize
 end
 
+struct SlidingWindow
+    width :: Int
+end
+
 function search(s::Integer,n::Integer,::Best)
-    a_k = Array{Int}(1:s-1)
-    a_to_n = Array{BigInt}(BigInt.(a_k).^n)
+    a = Array{Int}(1:s-1)
+    a_to_n = Array{BigInt}(BigInt.(a).^n)
     lhs = BigInt(s)^n
     bc,best_error = best_combination(a_to_n, lhs)
     collect(OnePositions(bc)),best_error
 end
 
 function search(s::T, n::Integer, a::Vector{T}, ss::SubSet{T}) where {T<:Integer}
-    @assert length(a)==s-1
+    @assert length(a)<s
     lhs =  BigInt(s)^n
     a_not_in_subset = setdiff(a,ss.a)
     for a_k in a_not_in_subset
-        lhs-=a_k^n
+        lhs-=BigInt(a_k)^n
     end
     bc_subset,best_error = best_combination([BigInt(x)^n for x in ss.a], lhs)
     best_a = a_not_in_subset
@@ -27,6 +31,18 @@ function search(s::T, n::Integer, a::Vector{T}, ss::SubSet{T}) where {T<:Integer
         push!(best_a,ss.a[k])
     end
     best_a, best_error
+end
+
+function search(s::Int, n::Int, a::Vector{Int}, sw::SlidingWindow)
+    window_max = s-1
+    window_min = s-1-sw.width
+    ss = SubSet([x for x in window_max:-1:window_min])
+    e = BigInt(0)
+    for i in 1:window_min
+        a,e = search(s,n,a,ss)
+        ss.a.-=1
+    end
+    a,e
 end
 
 function best_combination(a_to_n,
@@ -47,17 +63,17 @@ function best_combination(a_to_n,
     bc,best_error
 end
 
-#=
-function a_to_n_in_subset(ss::SubSet{T},n) where {T<:Integer}
-    a_to_n = Vector{BigInt}()
-    sizehint!(a_to_n,count_ones(ss.c))
-    for i in OnePositions(ss.c)
-        push!(a_to_n,BigInt(i^n))
+
+function f()
+    # 28^16=>{27,26,24,23,20,19,18,17},e=-3923372792424650116
+    s = 28
+    n = 16
+    a = Vector{Int}()
+    for i in 19:-1:1
+        ss =SubSet([x for x in (i+8):-1:i])
+        best_a, e = search(s,n,a,ss)
+        @show Solution(s,n,best_a,false)
+        @show e
+        a = best_a
     end
-    a_to_n
 end
-function not_subset(ss::SubSet{T}, number_of_bits) where {T<:Integer}
-    enough_ones = T(2)^(number_of_bits+1)-1
-    enough_ones ⊻ ss.c
-end
-=#
