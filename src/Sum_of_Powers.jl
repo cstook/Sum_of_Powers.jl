@@ -1,7 +1,7 @@
 module Sum_of_Powers
 
 export Solution, err
-export search, Best
+export search, Best, SubSet
 
 
 import Base.string
