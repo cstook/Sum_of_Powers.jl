@@ -64,16 +64,20 @@ function best_combination(a_to_n,
 end
 
 
-function f()
-    # 28^16=>{27,26,24,23,20,19,18,17},e=-3923372792424650116
-    s = 28
-    n = 16
-    a = Vector{Int}()
-    for i in 19:-1:1
-        ss =SubSet([x for x in (i+8):-1:i])
-        best_a, e = search(s,n,a,ss)
-        @show Solution(s,n,best_a,false)
-        @show e
-        a = best_a
+
+powers_tuple_old(s,n) = ntuple(x->(s-x)^BigInt(n),s-1)
+function max_all_a(n)
+    s=2
+    while true
+        powers=powers_tuple_old(s,n)
+        all = collect(s-1:-1:1)
+        e = s^(BigInt(n))
+        for i in all
+            e = e - powers[s-i]
+        end
+        if e<0
+            return s-1
+        end
+        s+=1
     end
 end

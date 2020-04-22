@@ -47,18 +47,3 @@ function err(x, acc=BigInt(0))
     end
     acc
 end
-
-
-function f()
-    # 28^16=>{27,26,24,23,20,19,18,17},e=-3923372792424650116
-    s = 28
-    n = 16
-    a = Vector{Int}()
-    for i in 19:-1:1
-        ss =SubSet([x for x in (i+8):-1:i])
-        best_a, e = search(s,n,a,ss)
-        @show Solution(s,n,best_a,false)
-        @show e
-        a = best_a
-    end
-end
