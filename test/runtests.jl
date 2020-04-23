@@ -27,16 +27,17 @@ end
 end
 
 @testset "search.jl" begin
-    a, e = search(20,10,Best())
+    a, e = search(Best(),20,10)
     @test e == BigInt(8584238000)
     @test a == [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 18, 19]
+    search(Best(),20,10,[1,2,3,4]) # should ignore array
 
     ss = SubSet([x for x in 1:8])
     s = 20
     n = 16
     a = [x for x in 1:19]
     known_e = 168716336388812100534 # for {19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1}
-    a,e = search(s,n,a,ss)
+    a,e = search(ss,s,n,a)
     @test e==known_e
     @test setdiff(a,[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19])==[]
 
@@ -45,7 +46,7 @@ end
     n = 10
     a = [15,12,11]
     known_e = -2106698499
-    a,e = search(s,n,a,ss)
+    a,e = search(ss,s,n,a)
     @test e==known_e
     @test setdiff(a,[15,14,13,12,11,10])==[]
     sol = Solution(s,n,a,false)
@@ -56,7 +57,7 @@ end
     n = 16
     a = Vector{Int}()
     sw = SlidingWindow(10)
-    a,e = search(s,n,a,sw)
+    a,e = search(sw,s,n,a)
     @test e==-3923372792424650116 # SlidingWindow found the best!
     @test setdiff(a,[27, 26, 24, 23, 20, 19, 18, 17])==[]
 

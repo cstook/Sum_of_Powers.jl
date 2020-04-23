@@ -22,3 +22,16 @@ function Base.iterate(op::OnePositions{T}, state) where {T<:Integer}
     this_one_position = trailing_zeros(shifted)+previous_one_position+one(T)
     (this_one_position,(remaining_ones,this_one_position))
 end
+
+function Base.getindex(a::AbstractArray ,op::OnePositions)
+    [a[x] for x in op]
+end
+
+# Similar performance to sum(a[pos]).  Probably do not need this.
+function sum_one_positions(a::Vector{T}, pos::OnePositions) where T
+    s = zero(T)
+    for e in pos
+        s+=e
+    end
+    s
+end

@@ -9,7 +9,7 @@ struct SlidingWindow
     width :: Int
 end
 
-function search(s::Integer,n::Integer,::Best)
+function search(::Best,s::Integer,n::Integer,::Vector=[])
     a = Array{Int}(1:s-1)
     a_to_n = Array{BigInt}(BigInt.(a).^n)
     lhs = BigInt(s)^n
@@ -17,7 +17,7 @@ function search(s::Integer,n::Integer,::Best)
     collect(OnePositions(bc)),best_error
 end
 
-function search(s::T, n::Integer, a::Vector{T}, ss::SubSet{T}) where {T<:Integer}
+function search(ss::SubSet{T}, s::T, n::Integer, a::Vector{T}) where {T<:Integer}
     @assert length(a)<s
     lhs =  BigInt(s)^n
     a_not_in_subset = setdiff(a,ss.a)
@@ -33,13 +33,13 @@ function search(s::T, n::Integer, a::Vector{T}, ss::SubSet{T}) where {T<:Integer
     best_a, best_error
 end
 
-function search(s::Int, n::Int, a::Vector{Int}, sw::SlidingWindow)
+function search(sw::SlidingWindow, s::Int, n::Int, a::Vector{Int})
     window_max = s-1
     window_min = s-1-sw.width
     ss = SubSet([x for x in window_max:-1:window_min])
     e = BigInt(0)
     for i in 1:window_min
-        a,e = search(s,n,a,ss)
+        a,e = search(ss,s,n,a)
         ss.a.-=1
     end
     a,e
