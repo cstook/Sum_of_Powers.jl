@@ -9,6 +9,8 @@ struct SlidingWindow
     width :: Int
 end
 
+struct MabeyBest end # optimized version of Best
+
 function search(::Best,s::Integer,n::Integer,::Vector=[])
     a = Array{Int}(1:s-1)
     a_to_n = Array{BigInt}(BigInt.(a).^n)
@@ -33,18 +35,6 @@ function search(ss::SubSet{T}, s::T, n::Integer, a::Vector{T}) where {T<:Integer
     best_a, best_error
 end
 
-function search(sw::SlidingWindow, s::Int, n::Int, a::Vector{Int})
-    window_max = s-1
-    window_min = s-1-sw.width
-    ss = SubSet([x for x in window_max:-1:window_min])
-    e = BigInt(0)
-    for i in 1:window_min
-        a,e = search(ss,s,n,a)
-        ss.a.-=1
-    end
-    a,e
-end
-
 function best_combination(a_to_n,
                           lhs::BigInt,
                           best_error::BigInt = BigInt(lhs)
@@ -63,21 +53,27 @@ function best_combination(a_to_n,
     bc,best_error
 end
 
+function search(sw::SlidingWindow, s::Int, n::Int, a::Vector{Int})
+    window_max = s-1
+    window_min = s-1-sw.width
+    ss = SubSet([x for x in window_max:-1:window_min])
+    e = BigInt(0)
+    for i in 1:window_min
+        a,e = search(ss,s,n,a)
+        ss.a.-=1
+    end
+    a,e
+end
 
-
-powers_tuple_old(s,n) = ntuple(x->(s-x)^BigInt(n),s-1)
-function max_all_a(n)
-    s=2
+function max_s_for_all_a(n)
+    s = 1
+    old_s_to_n = BigInt(1)
+    e = old_s_to_n
     while true
-        powers=powers_tuple_old(s,n)
-        all = collect(s-1:-1:1)
-        e = s^(BigInt(n))
-        for i in all
-            e = e - powers[s-i]
-        end
-        if e<0
-            return s-1
-        end
         s+=1
+        new_s_to_n = BigInt(s)^n
+        e = e + new_s_to_n - 2*old_s_to_n
+        e<0 && return s-1
+        old_s_to_n = new_s_to_n
     end
 end
