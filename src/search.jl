@@ -65,6 +65,31 @@ function search(sw::SlidingWindow, s::Int, n::Int, a::Vector{Int})
     a,e
 end
 
+#=
+function search(::MabeyBest, s::Int, n::Int, ::Vector{Int}=[])
+    all_a_to_n = [BigInt(x)^n for x in 1:s-1]
+    lhs = BigInt(s)^n
+    mabey_best_(lhs,s-1,all_a_to_n)
+end
+mabey_best_(lhs::BigInt, max_k::Int,  all_a_to_n::Vector{BigInt})
+    split = find_split(lhs, max_k, all_a_to_n)
+    view_a_to_n = view(all_a_to_n,split-1:1)
+    for upper_combinations in OnePositions(2^(max_k-split+1))
+        new_lhs = lhs-sum(view_a_to_n[upper_combinations])
+        mabey_best_(new_lhs, split-1, view_a_to_n)
+    end
+end
+function find_split(lhs::BigInt, max_k::Int, all_a_to_n::BigInt)::Int
+    e = lhs
+    for k in 1:max_k
+        e-=all_a_to_n[k]
+        e<=0 && return k
+    end
+    return max_k
+    end
+end
+=#
+
 function max_s_for_all_a(n)
     s = 1
     old_s_to_n = BigInt(1)

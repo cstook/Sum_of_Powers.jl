@@ -23,9 +23,15 @@ function Base.iterate(op::OnePositions{T}, state) where {T<:Integer}
     (this_one_position,(remaining_ones,this_one_position))
 end
 
-function Base.getindex(a::AbstractArray ,op::OnePositions)
+function Base.getindex(a::Vector{T} ,op::OnePositions)  where T
     [a[x] for x in op]
 end
+function Base.setindex!(a::BitArray{1}, x::Bool, op::OnePositions)
+    for i in op
+        a[i] = x
+    end
+end
+
 
 # Similar performance to sum(a[pos]).  Probably do not need this.
 function sum_one_positions(a::Vector{T}, pos::OnePositions) where T
