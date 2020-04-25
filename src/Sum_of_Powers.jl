@@ -1,9 +1,7 @@
 module Sum_of_Powers
 
 export Solution, err
-export search, Best, SubSet, SlidingWindow
-export write_file, write_io
-
+export search, Best, SubSet, SlidingWindow, MabeyBest
 
 import Base.string
 
