@@ -83,6 +83,7 @@ function search(::MabeyBest, s::Int, n::Int, ::Vector{Int}=[])
 end
 function _mabey_best!(select_a::T, best::Tracker, lhs::BigInt, max_k::Int, all_a_to_n::Vector{BigInt}) where T<:Integer
     # select_a and best are modified
+    is_error_zero(best) && return nothing
     if max_k == 0
         best(select_a, lhs)
         return nothing

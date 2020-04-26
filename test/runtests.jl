@@ -75,7 +75,6 @@ end
     @test setdiff(a,[15,14,13,12,11,10])==[]
     sol = Solution(s,n,a,false)
     @test err(sol) == known_e
-
     # best 28^16=>{27,26,24,23,20,19,18,17},e=-3923372792424650116
     s = 28
     n = 16
@@ -84,4 +83,36 @@ end
     a,e = search(sw,s,n,a)
     @test e==-3923372792424650116 # SlidingWindow found the best!
     @test setdiff(a,[27, 26, 24, 23, 20, 19, 18, 17])==[]
+
+    mb = MabeyBest()
+    # 2^3=>{1},e=7
+    s = 2
+    n = 3
+    a,e = search(mb,s,n)
+    @test e=7
+    @test setdiff(a,[1])==[]
+    # 5^3=>{4,3,2,1},e=25
+    s = 5
+    n = 3
+    a,e = search(mb,s,n)
+    @test e=25
+    @test setdiff(a,[4,3,2,1])==[]
+    # 6^3=>{5,4,3},e=0
+    s = 6
+    n = 3
+    a,e = search(mb,s,n)
+    @test e=0
+    @test setdiff(a,[5,4,3])==[]
+    # 11^6=>{10,9,8},e=-22024
+    s = 11
+    n = 6
+    a,e = search(mb,s,n)
+    @test e=-22024
+    @test setdiff(a,[10,9,8])==[]
+    # 25^6=>{23,18,17,16,15,13,12,10,9,8,7,6,5,3,2,1},e=0
+    s = 25
+    n = 6
+    a,e = search(mb,s,n)
+    @test e=0
+    @test setdiff(a,[23,18,17,16,15,13,12,10,9,8,7,6,5,3,2,1])==[]
 end
