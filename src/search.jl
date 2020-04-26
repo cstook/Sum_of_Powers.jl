@@ -69,22 +69,40 @@ function search(::MabeyBest, s::Int, n::Int, ::Vector{Int}=[])
     max_k = s-1
     all_a_to_n = [BigInt(x)^n for x in 1:max_k]
     lhs = BigInt(s)^n
-    select_a = max_k>64 ? Uint128(0):Unt64(0)
+    select_a = if max_k<65
+        UInt64(0)
+    elseif max_k<129
+        UInt128(0)
+    else
+        BigInt(0)
+    end
     best = Tracker(select_a,lhs)
     _mabey_best!(select_a, best, lhs, max_k, all_a_to_n)
     best_a, best_error = best()
-    collect(OnePositions(best_a), best_error
+    collect(OnePositions(best_a)), best_error
 end
-function _mabey_best!(select_a, best, lhs::BigInt, max_k::Int, all_a_to_n::Vector{BigInt})
+function _mabey_best!(select_a::T, best::Tracker, lhs::BigInt, max_k::Int, all_a_to_n::Vector{BigInt}) where T<:Integer
     # select_a and best are modified
-    # need terminating case !!
-    split = find_split(lhs, max_k, all_a_to_n)
+    if max_k == 0
+        best(select_a, lhs)
+        return nothing
+    end
+    split,e = find_split(lhs, max_k, all_a_to_n)
+    if split==max_k
+        all_ones_to_split = select_a & T(2)^(split-1)
+        best(all_ones_to_split, e)
+        return nothing
+    end
     upper_view_a_to_n = view(all_a_to_n, max_k:split)
     lower_view_a_to_n = view(all_a_to_n, split-1:1)
-    for upper_combinations in 1:2^(max_k-split+1)
+    for upper_combinations in 1:T(2)^(max_k-split+1)
         upper_view_select_a .⊻= upper_combinations<<(split-1)
         new_lhs = lhs-sum(upper_view_a_to_n[OnePositions(upper_combinations)])
-        _mabey_best(select_a, best, new_lhs, split-1, lower_view_a_to_n)
+        if new_lhs>0
+            _mabey_best(select_a, best, new_lhs, split-1, lower_view_a_to_n)
+        else
+            best(select_a, lhs)
+        end
         upper_view_select_a .⊻= upper_combinations<<(split-1)
     end
     nothing
@@ -92,10 +110,11 @@ end
 function find_split(lhs::BigInt, max_k::Int, all_a_to_n::BigInt)::Int
     e = lhs
     for k in 1:max_k
+        previous_error = e
         e-=all_a_to_n[k]
-        e<=0 && return k
+        e<=0 && return k,previous_error
     end
-    return max_k
+    return max_k,e
 end
 function true_positions(x::BitArray{1})
     positions = Vector{Int}()
