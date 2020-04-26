@@ -36,13 +36,13 @@ end
     s = 10
     n = 5
     lhs = BigInt(s)^n
-    a = falses(s-1)
-    best = Tracker(a,lhs)
-    best(BitArray([0,0,0,0,1,1,1,1,1]),-lhs-1)
+    a = 0
+    best = Tracker{Int}(a,lhs)
+    best(31,-lhs-1)
     (best_a,best_e) = best()
     @test best_a==a
     @test ~is_error_zero(best)
-    new_a = BitArray([1,1,1,1,1,1,1,1,1])
+    new_a = 255
     best(new_a,BigInt(0))
     (best_a,best_e) = best()
     @test best_a==new_a
