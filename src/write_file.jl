@@ -33,7 +33,7 @@ end
 function write_io(io::IO,srange,n::Integer,::MabeyBest)
     for s in srange
         a,e = search(MabeyBest(),s,n)
-        sol = Solution(s,n,a)
+        sol = Solution(s,n,a,false)
         @assert e == err(sol)
         println(io,string(sol),",e=",string(e))
         flush(io)
