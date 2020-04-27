@@ -89,30 +89,30 @@ end
     s = 2
     n = 3
     a,e = search(mb,s,n)
-    @test e=7
+    @test e==7
     @test setdiff(a,[1])==[]
     # 5^3=>{4,3,2,1},e=25
     s = 5
     n = 3
     a,e = search(mb,s,n)
-    @test e=25
+    @test e==25
     @test setdiff(a,[4,3,2,1])==[]
     # 6^3=>{5,4,3},e=0
     s = 6
     n = 3
     a,e = search(mb,s,n)
-    @test e=0
+    @test e==0
     @test setdiff(a,[5,4,3])==[]
     # 11^6=>{10,9,8},e=-22024
     s = 11
     n = 6
     a,e = search(mb,s,n)
-    @test e=-22024
+    @test e==-22024
     @test setdiff(a,[10,9,8])==[]
     # 25^6=>{23,18,17,16,15,13,12,10,9,8,7,6,5,3,2,1},e=0
     s = 25
     n = 6
     a,e = search(mb,s,n)
-    @test e=0
+    @test e==0
     @test setdiff(a,[23,18,17,16,15,13,12,10,9,8,7,6,5,3,2,1])==[]
 end

@@ -22,7 +22,7 @@ function Base.iterate(op::OnePositions{T}, state) where {T<:Integer}
     (this_one_position,(remaining_ones,this_one_position))
 end
 
-function Base.getindex(a::Vector{T} ,op::OnePositions{T})  where T
+function Base.getindex(a::AbstractArray ,op::OnePositions{T})  where T
     [a[x] for x in op]
 end
 function Base.setindex!(a::BitArray{1}, x::Union{Bool,Integer}, op::OnePositions)

@@ -65,7 +65,7 @@ function search(sw::SlidingWindow, s::Int, n::Int, a::Vector{Int})
     a,e
 end
 
-function search(::MabeyBest, s::Int, n::Int, ::Vector{Int}=[])
+function search(::MabeyBest, s::Int, n::Int, ::Vector{Int}=Vector{Int}([]))
     max_k = s-1
     all_a_to_n = [BigInt(x)^n for x in 1:max_k]
     lhs = BigInt(s)^n
@@ -79,9 +79,9 @@ function search(::MabeyBest, s::Int, n::Int, ::Vector{Int}=[])
     best = Tracker(select_a,lhs)
     _mabey_best!(select_a, best, lhs, max_k, all_a_to_n)
     best_a, best_error = best()
-    collect(OnePositions(best_a)), best_error
+    Int.(collect(OnePositions(best_a))), best_error
 end
-function _mabey_best!(select_a::T, best::Tracker, lhs::BigInt, max_k::Int, all_a_to_n::Vector{BigInt}) where T<:Integer
+function _mabey_best!(select_a::T, best::Tracker, lhs::BigInt, max_k::Int, all_a_to_n) where T<:Integer
     # select_a and best are modified
     is_error_zero(best) && return nothing
     if max_k == 0
@@ -89,26 +89,26 @@ function _mabey_best!(select_a::T, best::Tracker, lhs::BigInt, max_k::Int, all_a
         return nothing
     end
     split,e = find_split(lhs, max_k, all_a_to_n)
-    if split==max_k
-        all_ones_to_split = select_a & T(2)^(split-1)
+    if split-1==max_k
+        all_ones_to_split = select_a | T(2)^(split-1)-1
         best(all_ones_to_split, e)
         return nothing
     end
-    upper_view_a_to_n = view(all_a_to_n, max_k:split)
-    lower_view_a_to_n = view(all_a_to_n, split-1:1)
-    for upper_combinations in 1:T(2)^(max_k-split+1)
-        upper_view_select_a .⊻= upper_combinations<<(split-1)
+    upper_view_a_to_n = view(all_a_to_n, split:max_k)
+    lower_view_a_to_n = view(all_a_to_n, 1:split-1)
+    upper_combinations_range = 1:T(2)^(max_k-split)
+    for upper_combinations in upper_combinations_range
+        new_select_a = select_a ⊻ upper_combinations<<(split-1)
         new_lhs = lhs-sum(upper_view_a_to_n[OnePositions(upper_combinations)])
         if new_lhs>0
-            _mabey_best(select_a, best, new_lhs, split-1, lower_view_a_to_n)
+            _mabey_best!(new_select_a, best, new_lhs, split-1, lower_view_a_to_n)
         else
-            best(select_a, lhs)
+            best(select_a, new_lhs)
         end
-        upper_view_select_a .⊻= upper_combinations<<(split-1)
     end
     nothing
 end
-function find_split(lhs::BigInt, max_k::Int, all_a_to_n::BigInt)::Int
+function find_split(lhs::BigInt, max_k::Int, all_a_to_n)
     e = lhs
     for k in 1:max_k
         previous_error = e

@@ -7,8 +7,9 @@ import Base.string
 
 include("Solution.jl")
 include("OnePositions.jl")
+include("track_best.jl")
 include("search.jl")
 include("write_file.jl")
-include("track_best.jl")
+
 
 end  #module
