@@ -2,6 +2,7 @@ module Sum_of_Powers
 
 export Solution, err
 export search, Best, SubSet, SlidingWindow, MabeyBest
+export write_file
 
 import Base.string
 

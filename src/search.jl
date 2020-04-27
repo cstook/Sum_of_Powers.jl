@@ -103,7 +103,7 @@ function _mabey_best!(select_a::T, best::Tracker, lhs::BigInt, max_k::Int, all_a
         if new_lhs>0
             _mabey_best!(new_select_a, best, new_lhs, split-1, lower_view_a_to_n)
         else
-            best(select_a, new_lhs)
+            best(new_select_a, new_lhs)
         end
     end
     nothing
