@@ -47,3 +47,26 @@ function err(x, acc=BigInt(0))
     end
     acc
 end
+
+function Base.parse(::Type{Solution}, s::AbstractString, AZsPC::Bool=true)
+    m = match(r"\s*(\d*)\s*\^\s*(\d*)\s*=>\s*\{([0-9, ]+)\}",s)
+    isnothing(m) && return nothing
+    s = parse(Int,m.captures[1])
+    n = parse(Int,m.captures[2])
+    a_string = m.captures[3]
+    pos = 1
+    a = Vector{Int}()
+    while true
+        next_pos = findnext(isequal(','),a_string,pos)
+        if isnothing(next_pos)
+            a_k = parse(Int,a_string[pos:end])
+            push!(a,a_k)
+            break
+        else
+            a_k = parse(Int,a_string[pos:prevind(a_string,next_pos)])
+            push!(a,a_k)
+        end
+        pos = nextind(a_string, next_pos)
+    end
+    Solution(s,n,a,AZsPC)
+end
