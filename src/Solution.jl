@@ -50,7 +50,7 @@ end
 
 function Base.parse(::Type{Solution}, s::AbstractString, AZsPC::Bool=true)
     m = match(r"\s*(\d*)\s*\^\s*(\d*)\s*=>\s*\{([0-9, ]+)\}",s)
-    isnothing(m) && return nothing
+    isnothing(m) && throw(ArgumentError("Invalid Solution String"))
     s = parse(Int,m.captures[1])
     n = parse(Int,m.captures[2])
     a_string = m.captures[3]
@@ -69,4 +69,17 @@ function Base.parse(::Type{Solution}, s::AbstractString, AZsPC::Bool=true)
         pos = nextind(a_string, next_pos)
     end
     Solution(s,n,a,AZsPC)
+end
+
+function parse_solution_error(s::AbstractString, AZsPC::Bool=true)
+    m = match(r"(.*),\s*e\s*=\s*([0-9+-]*)",s)
+    isnothing(m) && throw(ArgumentError())
+    solution = parse(Solution, m.captures[1])
+    if isnothing(m)
+        e = nothing
+    else
+        e = parse(BigInt,m.captures[2])
+        @assert e == err(solution)
+    end
+    solution, e
 end
