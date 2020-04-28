@@ -94,10 +94,10 @@ function _mabey_best!(select_a::T, best::Tracker, lhs::BigInt, max_k::Int, all_a
     split-1==max_k && return nothing
     upper_view_a_to_n = view(all_a_to_n, split:max_k)
     lower_view_a_to_n = view(all_a_to_n, 1:split-1)
-    upper_combinations_range = 1:T(2)^(max_k-split)
-    for upper_combinations in upper_combinations_range
-        new_select_a = select_a ⊻ upper_combinations<<(split-1)
-        new_lhs = lhs-sum(upper_view_a_to_n[OnePositions(upper_combinations)])
+    upper_combination_range = 1:T(2)^(max_k-split+1)-1
+    for upper_combination in upper_combination_range
+        new_select_a = select_a ⊻ upper_combination<<(split-1)
+        new_lhs = lhs-sum(upper_view_a_to_n[OnePositions(upper_combination)])
         best(new_select_a, new_lhs)
         if new_lhs>0
             _mabey_best!(new_select_a, best, new_lhs, split-1, lower_view_a_to_n)
