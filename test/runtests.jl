@@ -83,7 +83,7 @@ end
     a,e = search(sw,s,n,a)
     @test e==-3923372792424650116 # SlidingWindow found the best!
     @test setdiff(a,[27, 26, 24, 23, 20, 19, 18, 17])==[]
-
+#=
     mb = MabeyBest()
     # 2^3=>{1},e=7
     s = 2
@@ -133,7 +133,7 @@ end
     a,e = search(mb,s,n)
     @test e==BigInt(-63411027820192788929)
     @test issetequal(a,[24,23,22,21,20])
-
+    =#
 end
 
 include("verify_against_known_solutions_in_file.jl")

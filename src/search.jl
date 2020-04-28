@@ -89,11 +89,9 @@ function _mabey_best!(select_a::T, best::Tracker, lhs::BigInt, max_k::Int, all_a
         return nothing
     end
     split,e = find_split(lhs, max_k, all_a_to_n)
-    if split-1==max_k
-        all_ones_to_split = select_a | T(2)^(split-1)-1
-        best(all_ones_to_split, e)
-        return nothing
-    end
+    all_ones_to_split = select_a | T(2)^(split-1)-1
+    best(all_ones_to_split, e)
+    split-1==max_k && return nothing
     upper_view_a_to_n = view(all_a_to_n, split:max_k)
     lower_view_a_to_n = view(all_a_to_n, 1:split-1)
     upper_combinations_range = 1:T(2)^(max_k-split)
@@ -114,7 +112,7 @@ function find_split(lhs::BigInt, max_k::Int, all_a_to_n)
         e-=all_a_to_n[k]
         e<=0 && return k,previous_error
     end
-    return max_k,e
+    return max_k+1,e
 end
 function true_positions(x::BitArray{1})
     positions = Vector{Int}()
