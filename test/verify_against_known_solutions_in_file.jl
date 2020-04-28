@@ -1,0 +1,16 @@
+@testset "Solution_file.jl" begin
+    using Sum_of_Powers: parse_solution_error, MabeyBest, search,
+            Solution, SolutionError
+    file = "test_solutions.txt"
+    stratagy = MabeyBest()
+    open(file,"r") do io
+        for line in readlines(io)
+            file_solution, file_e = parse_solution_error(line,false)
+            s = file_solution.s
+            n = file_solution.n
+            search_a, search_e = search(stratagy, s, n)
+            search_solution = Solution(s,n,search_a,false)
+            @test SolutionError(search_solution) == SolutionError(file_solution)
+        end
+    end
+end

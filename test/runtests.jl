@@ -133,4 +133,7 @@ end
     a,e = search(mb,s,n)
     @test e==BigInt(-63411027820192788929)
     @test issetequal(a,[24,23,22,21,20])
+
 end
+
+include("verify_against_known_solutions_in_file.jl")

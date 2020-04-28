@@ -21,6 +21,13 @@ struct Solution{T<:Integer,N}
     end
 end
 Base.show(io::IO, x::Solution) = print(io,string(x))
+
+# wrapper for Solution which will show error
+struct SolutionError{T<:Integer,N}
+    s :: Solution{T,N}
+end
+Base.show(io::IO, x::SolutionError) = print(io,string(x.s,true))
+
 function Base.string(sol::Solution,witherror::Bool= false)
     to_string((sol.s,sol.n,sol.a),witherror)
 end
@@ -32,7 +39,7 @@ function to_string(x,witherror::Bool=false)
     end
     out = out*"}"
     if witherror
-        out = out*",e="*string(err(s,n,a))
+        out = out*",e="*string(err((s,n,a)))
     end
     out
 end
@@ -72,14 +79,15 @@ function Base.parse(::Type{Solution}, s::AbstractString, AZsPC::Bool=true)
 end
 
 function parse_solution_error(s::AbstractString, AZsPC::Bool=true)
-    m = match(r"(.*),\s*e\s*=\s*([0-9+-]*)",s)
-    isnothing(m) && throw(ArgumentError())
-    solution = parse(Solution, m.captures[1])
-    if isnothing(m)
+    m = match(r"(.*})(,\s*e\s*=\s*([0-9+-]*)){0,1}",s)
+    isnothing(m) && throw(ArgumentError("Invalid Solution, error String"))
+    solution = parse(Solution, m.captures[1], AZsPC)
+    if isnothing(m.captures[3])
         e = nothing
     else
-        e = parse(BigInt,m.captures[2])
-        @assert e == err(solution)
+        e = parse(BigInt,m.captures[3])
+        solution_error = err(solution)
+        @assert e == solution_error "string error $e != solution error $solution_error"
     end
     solution, e
 end
