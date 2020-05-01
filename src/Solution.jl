@@ -91,3 +91,12 @@ function parse_solution_error(s::AbstractString, AZsPC::Bool=true)
     end
     solution, e
 end
+
+function raw(x::Solution)
+    e = err(x)
+    if e==0
+        return 1-1/x.s
+    else
+        return log(abs(e)+1)+1
+    end
+end

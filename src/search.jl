@@ -10,6 +10,7 @@ struct SlidingWindow
 end
 
 struct MabeyBest end # optimized version of Best
+struct IncludedTerms end
 
 function search(::Best,s::Integer,n::Integer,::Vector=[])
     a = Array{Int}(1:s-1)
@@ -133,4 +134,27 @@ function max_s_for_all_a(n)
         e<0 && return s-1
         old_s_to_n = new_s_to_n
     end
+end
+
+function search(::IncludedTerms, s::Int, n::Int)
+    max_k = s-1
+    to_n = a_to_n(max_k, n)
+    dt,it = drop_terms(max_k, n)
+    it_to_n = to_n[it]
+    s_to_n = BigInt(s)^n
+    # write my own sortedsearch
+    #=
+    rhs = RHS(it_to_n)
+    l = searchsortedfirst(rhs, s_to_n)
+    l_error = s_to_n-rhs[l]
+    if l<length(rhs)
+        h = l+1
+        h_error = s_to_n-rhs[h]
+        x,best_error = abs(l_error)<abs(h_error) ? (l,l_error) : (h,h_error)
+    else
+        x,best_error = (l,l_error)
+    end
+    =#
+    # insert zeros for dropped terms
+    x,best_error
 end
