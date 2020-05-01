@@ -83,57 +83,20 @@ end
     a,e = search(sw,s,n,a)
     @test e==-3923372792424650116 # SlidingWindow found the best!
     @test setdiff(a,[27, 26, 24, 23, 20, 19, 18, 17])==[]
-#=
-    mb = MabeyBest()
-    # 2^3=>{1},e=7
-    s = 2
-    n = 3
-    a,e = search(mb,s,n)
-    @test e==7
-    @test issetequal(a,[1])
-    # 5^3=>{4,3,2,1},e=25
-    s = 5
-    n = 3
-    a,e = search(mb,s,n)
-    @test e==25
-    @test issetequal(a,[4,3,2,1])
-    # 6^3=>{5,4,3},e=0
-    s = 6
-    n = 3
-    a,e = search(mb,s,n)
-    @test e==0
-    @test issetequal(a,[5,4,3])
-    # 11^6=>{10,9,8},e=-22024
-    s = 11
-    n = 6
-    a,e = search(mb,s,n)
-    @test e==-22024
-    @test issetequal(a,[10,9,8])
-    # 25^6=>{23,18,17,16,15,13,12,10,9,8,7,6,5,3,2,1},e=0
-    s = 25
-    n = 6
-    a,e = search(mb,s,n)
-    @test e==0
-    @test issetequal(a,[23,18,17,16,15,13,12,10,9,8,7,6,5,3,2,1])
-    # 28^40=>{27,26,25,24,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1},e=5400443268136291573096133732738005254949693470241623252754
-    s = 28
-    n = 40
-    a,e = search(mb,s,n)
-    @test e==BigInt(5400443268136291573096133732738005254949693470241623252754)
-    @test issetequal(a,[27,26,25,24,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1])
-    # 28^16=>{27,26,24,23,20,19,18,17},e=-3923372792424650116
-    s = 28
-    n = 16
-    a,e = search(mb,s,n)
-    @test e==BigInt(-3923372792424650116)
-    @test issetequal(a,[27,26,24,23,20,19,18,17])
-    #25^16=>{24,23,22,21,20},e=-63411027820192788929
-    s = 25
-    n = 16
-    a,e = search(mb,s,n)
-    @test e==BigInt(-63411027820192788929)
-    @test issetequal(a,[24,23,22,21,20])
-    =#
 end
 
 include("verify_against_known_solutions_in_file.jl")
+
+@testset "look_up_table.jl" begin
+    using Sum_of_Powers: a_to_n, cumulative_a_to_n, problem_terms, drop_terms,
+    insert_zeros, issequential, sorted_up_to, isallsorted, IncludedTerms, search
+    @test a_to_n(5,2)==[1,4,9,16,25]
+    @test a_to_n(0,2)==[]
+    @test a_to_n(5,40)==[1,1099511627776,12157665459056928801,1208925819614629174706176,9094947017729282379150390625]
+    @test cumulative_a_to_n(5,2) == [1,5,14,30,55]
+    @test cumulative_a_to_n(0,2) == []
+    @test cumulative_a_to_n(5,40) == [1,1099511627777,12157666558568556578,1208937977281187743262754,9096155955706563566893653379]
+    @test drop_terms(5,4) == ([],[1,2,3,4,5])
+    @test drop_terms(10,4) == ([8,10],[1,2,3,4,5,6,7,9])
+    @test drop_terms(70,40) == ([60,64,67,70],[collect(1:59);[61,62,63,65,66,68,69])
+end
