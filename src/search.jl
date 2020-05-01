@@ -139,22 +139,26 @@ end
 function search(::IncludedTerms, s::Int, n::Int)
     max_k = s-1
     to_n = a_to_n(max_k, n)
-    dt,it = drop_terms(max_k, n)
-    it_to_n = to_n[it]
+    dt,it = drop_terms(max_k, n) # includes terms, dropped terms
+    it_to_n = to_n[it] # [included terms ^ n]
     s_to_n = BigInt(s)^n
-    # write my own sortedsearch
-    #=
-    rhs = RHS(it_to_n)
-    l = searchsortedfirst(rhs, s_to_n)
-    l_error = s_to_n-rhs[l]
-    if l<length(rhs)
-        h = l+1
-        h_error = s_to_n-rhs[h]
-        x,best_error = abs(l_error)<abs(h_error) ? (l,l_error) : (h,h_error)
-    else
-        x,best_error = (l,l_error)
+    min = BigInt(1)
+    max = BigInt(2)^length(it_to_n)-1
+    old_i = 0; i = 1
+    e = BigInt(0)
+    while true
+        old_i = i
+        i = div((max+min),2)
+        old_i == i && break
+        rhs = sum(it_to_n[OnePositions(i)])
+        e = s_to_n-rhs
+        e==0 && break
+        e>0 ? (min=i) : (max=i)
     end
-    =#
-    # insert zeros for dropped terms
-    x,best_error
+    if e>0 && iseven(i)
+        i+=1
+        e-=1
+    end
+    a = insert_zeros(i,dt)
+    Int.(collect(OnePositions(a))), e
 end

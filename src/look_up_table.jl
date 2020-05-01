@@ -1,7 +1,7 @@
 a_to_n(max_k, n) = [BigInt(x)^n for x in 1:max_k]
 function cumulative_a_to_n(max_k, n, to_n=a_to_n(max_k,n))
     x = Vector{BigInt}(undef,max_k)
-    y = BigInt(0)
+    y = 0
     for k in 1:max_k
         y += to_n[k]
         x[k] = y
@@ -9,20 +9,20 @@ function cumulative_a_to_n(max_k, n, to_n=a_to_n(max_k,n))
     x
 end
 function problem_terms(max_k, n, to_n=a_to_n(max_k,n), ctn=cumulative_a_to_n(max_k, n, to_n))
-    x = Vector{Int}()
-    y = Vector{BigInt}()
+    x = Vector{Int}() # problem terms
+    y = Vector{BigInt}() # error
     for k in 2:max_k
-        lhs = to_n[k]-ctn[k-1]
-        if lhs<0
+        e = to_n[k]-ctn[k-1]
+        if e<0 # is kth term less than the sum of all previous terms
             push!(x,k)
-            push!(y,lhs)
+            push!(y,e)
         end
     end
     x, y
 end
 function drop_terms(max_k, n, to_n=a_to_n(max_k,n))
     dt = Vector{Int}() # dropped terms
-    it = Vector{Int}() # included terms
+    it = Vector{Int}([1]) # included terms
     cumulative_included_terms = Vector{BigInt}([to_n[1]])
     look_back=1
     for k in 2:max_k
@@ -38,15 +38,6 @@ function drop_terms(max_k, n, to_n=a_to_n(max_k,n))
     end
     dt, it
 end
-
-
-struct RHS<:AbstractArray{BigInt,1}
-    a_to_n :: Vector{BigInt}
-end
-Base.size(rhs::RHS) = (2^(length(rhs.a_to_n))-1,)
-Base.IndexStyle(::RHS) = IndexLinear()
-Base.setindex!(::RHS,v,i::Int) = throw(ErrorException("type RHS not writeable"))
-Base.getindex(rhs::RHS, i::Int) = sum(rhs.a_to_n[OnePositions(i)])
 
 function insert_zeros(a::T, zero_positions::Array{Int}) where T<:Integer
     zp = sort(zero_positions)
