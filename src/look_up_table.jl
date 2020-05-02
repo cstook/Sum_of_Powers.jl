@@ -71,9 +71,9 @@ function create_look_up_table(bits::Int, n::Int)
     to_n, sum_combination
 end
 
-function sorted_up_to(bits::Int, n::Int)
-    to_n = [BigInt(x)^n for x in 1:bits]
-    table_length = 2^bits-1
+function sorted_up_to(max_k::Int, n::Int)
+    to_n = [BigInt(x)^n for x in 1:max_k]
+    table_length = 2^max_k-1
     previous_sum = BigInt(0)
     for a in 1:table_length
         new_sum= sum(to_n[OnePositions(a)])
@@ -83,7 +83,7 @@ function sorted_up_to(bits::Int, n::Int)
     return table_length
 end
 
-isallsorted(bits,n) = sorted_up_to(bits,n)==2^bits-1
+isallsorted(max_k,n) = sorted_up_to(max_k,n)==2^max_k-1
 
 
 

@@ -98,5 +98,37 @@ include("verify_against_known_solutions_in_file.jl")
     @test cumulative_a_to_n(5,40) == [1,1099511627777,12157666558568556578,1208937977281187743262754,9096155955706563566893653379]
     @test drop_terms(5,4) == ([],[1,2,3,4,5])
     @test drop_terms(10,4) == ([8,10],[1,2,3,4,5,6,7,9])
-    @test drop_terms(70,40) == ([60,64,67,70],[collect(1:59);[61,62,63,65,66,68,69])
+    @test drop_terms(70,40) == ([60,64,67,70],[collect(1:59);[61,62,63,65,66,68,69]])
+    @test drop_terms(5,0) == ([3, 4, 5], [1, 2])
+    @test drop_terms(1,5) == (Int64[], [1])
+    @test insert_zeros(0x00ff,[1]) == 0x01fe
+    @test insert_zeros(0x00ff,Int[]) == 0x00ff
+    @test insert_zeros(0x00ff,Int[1,3,5,7]) == 0x0faa
+    @test insert_zeros(BigInt(0xffffffffffffffffffff),[1,2,3,4,70]) == 0x1fffdffffffffffffffff0
+    max_k=63;n=2; @test sorted_up_to(max_k,n) == 16
+    sorted_up_to_dict = Dict(2=>0x10, 3=>0x20, 4=>0x80, 5=>0x100, 6=>0x400,
+      7=>0x800, 8=>0x2000, 9=>0x4000, 10=>0x8000, 11=>0x20000, 12=>0x40000, 13=>0x100000,
+      14=>0x200000, 15=>0x800000, 16=>0x1000000, 17=>0x4000000, 18=>0x8000000)
+    max_k = 63
+    for n in 3:10
+        @test sorted_up_to(max_k,n) == sorted_up_to_dict[n]
+    end
+    stratagy = IncludedTerms()
+    included_terms_test_string =
+    """
+    3^2=>{1,2},e=4
+    4^2=>{1,2,3},e=2
+    4^5=>{1,2,3},e=748
+    10^4=>{1,2,3,4,5,7,9},e=59
+    24^16=>{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23},e=400030525071869538932
+    """
+    io = IOBuffer(included_terms_test_string)
+    for line in readlines(io)
+        string_solution, file_e = parse_solution_error(line,false)
+        s = string_solution.s
+        n = string_solution.n
+        search_a, search_e = search(stratagy, s, n)
+        search_solution = Solution(s,n,search_a,false)
+        @test SolutionError(search_solution) == SolutionError(string_solution)
+    end
 end
