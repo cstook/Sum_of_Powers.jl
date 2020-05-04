@@ -35,16 +35,16 @@ function overlap_limits(max_k, k, n,
     d = ctn[k-1]
     c>=d && return nothing # no overlap
     # find b
-    search_range_min = (k-1)>>1
-    search_range_max = k-1
+    rhs_b_min = BigInt(1)<<(k-2)
+    rhs_b_max = (BigInt(1)<<(k-1))-1
     target_value = c
     b = binary_search(max_k,
                      rhs_b_min, rhs_b_max,
                      target_value,
                      n,tn)
     # find e
-    search_range_min = k
-    search_range_max = k<<1
+    rhs_b_min = BigInt(1)<<(k-1)
+    rhs_b_max = (BigInt(1)<<k)-1
     target_value = d
     e = binary_search(max_k,
                      rhs_b_min, rhs_b_max,
