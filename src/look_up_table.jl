@@ -20,17 +20,26 @@ function problem_terms(max_k, n, to_n=a_to_n(max_k,n), ctn=cumulative_a_to_n(max
     end
     x, y
 end
-
-
+function overlap_dict(max_k, n,
+                      tn=a_to_n(max_k+1,n),
+                      ctn=cumulative_a_to_n(max_k+1, n, tn))
+    d = Dict{Int,Tuple{BigInt,BigInt}}()
+    for k in 3:max_k
+        limits = overlap_limits(max_k, k, n, tn, ctn)
+        isnothing(limits) || push!(d,k=>limits)
+    end
+    d
+end
 # find the extent of the overlap around k where the binary representation of the a_k's is
 # not in order.  Assume no double overlap for now.
 function overlap_limits(max_k, k, n,
-                        tn=a_to_n(max_k,n),
-                        ctn=cumulative_a_to_n(max_k, n, tn))
+                        tn=a_to_n(max_k+1,n),
+                        ctn=cumulative_a_to_n(max_k+1, n, tn))
     # for lack of better names we will use b,c,d,e
     # b,e will be the limits of the overlap to be found by this function
     # c,d are easy to understand from the code below
     # when we are done b<c<d<e and b,e are the limits of overlap around term k
+    k+=1 # OK, I know this is BAD!
     c = tn[k]
     d = ctn[k-1]
     c>=d && return nothing # no overlap
