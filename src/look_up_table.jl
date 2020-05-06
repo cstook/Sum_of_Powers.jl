@@ -20,6 +20,19 @@ function problem_terms(max_k, n, to_n=a_to_n(max_k,n), ctn=cumulative_a_to_n(max
     end
     x, y
 end
+function isinoverlap(max_k, rhs_b::BigInt, d::Dict{Int,Tuple{BigInt,BigInt}}, tn)
+    mask = (BigInt(1)<<max_k)-1
+     for term in max_k:-1:3
+         if haskey(d,term)
+             (l,u) = d[term]
+             if l<mask&rhs_b<u
+                 return true
+             end
+             mask>>1
+         end
+     end
+     return false
+end
 function overlap_dict(max_k, n,
                       tn=a_to_n(max_k+1,n),
                       ctn=cumulative_a_to_n(max_k+1, n, tn))
@@ -39,6 +52,7 @@ function overlap_limits(max_k, k, n,
     # b,e will be the limits of the overlap to be found by this function
     # c,d are easy to understand from the code below
     # when we are done b<c<d<e and b,e are the limits of overlap around term k
+    #@show k
     k+=1 # OK, I know this is BAD!
     c = tn[k]
     d = ctn[k-1]
@@ -51,6 +65,10 @@ function overlap_limits(max_k, k, n,
                      rhs_b_min, rhs_b_max,
                      target_value,
                      n,tn)
+    #@show b-rhs_b_min
+    #@show rhs_b_max-b
+    @assert b>rhs_b_min
+    @assert b<rhs_b_max
     # find e
     rhs_b_min = BigInt(1)<<(k-1)
     rhs_b_max = (BigInt(1)<<k)-1
@@ -59,6 +77,10 @@ function overlap_limits(max_k, k, n,
                      rhs_b_min, rhs_b_max,
                      target_value,
                      n,tn) +1
+    #@show e-rhs_b_min
+    #@show rhs_b_max-e
+    @assert e>rhs_b_min
+    @assert e<rhs_b_max
     b,e
 end
 function binary_search(max_k,
