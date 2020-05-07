@@ -11,6 +11,8 @@ end
 
 struct MabeyBest end # optimized version of Best
 struct IncludedTerms end
+struct BinaryIgnoreOverlap end
+struct BinaryCorrectOverlap end
 
 function search(::Best,s::Integer,n::Integer,::Vector=[])
     a = Array{Int}(1:s-1)
@@ -161,4 +163,17 @@ function search(::IncludedTerms, s::Int, n::Int)
     end
     a = insert_zeros(i,dt)
     Int.(collect(OnePositions(a))), e
+end
+
+function _binary_ignore_overlap(s::Int, n::Int, tn=a_to_n(s,n))
+    max_k = s-1
+    rhs_b_min = BigInt(1)
+    rhs_b_max = (BigInt(1)<<max_k)-1
+    target_value = tn[s]
+    binary_search(max_k, rhs_b_min, rhs_b_max, target_value, n, tn)
+end
+function search(::BinaryIgnoreOverlap, s, n, tn=a_to_n(s,n))
+    rhs_b = _binary_ignore_overlap(s, n, tn)
+    e = tn[s] - sum(tn[OnePositions(rhs_b)])
+    Int.(collect(OnePositions(rhs_b))), e
 end

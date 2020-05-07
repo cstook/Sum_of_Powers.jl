@@ -1,7 +1,8 @@
 module Sum_of_Powers
 
 export Solution, err
-export search, Best, SubSet, SlidingWindow, MabeyBest
+export search, Best, SubSet, SlidingWindow, MabeyBest, BinaryIgnoreOverlap
+export BinaryCorrectOverlap, a_to_n, cumulative_a_to_n
 export write_file
 
 import Base.string

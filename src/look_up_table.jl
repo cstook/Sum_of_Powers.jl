@@ -25,7 +25,7 @@ function isinoverlap(max_k, rhs_b::BigInt, d::Dict{Int,Tuple{BigInt,BigInt}}, tn
      for term in max_k:-1:3
          if haskey(d,term)
              (l,u) = d[term]
-             if l<mask&rhs_b<u
+             if l<=mask&rhs_b<=u
                  return true
              end
              mask>>1
@@ -110,6 +110,7 @@ function binary_search(max_k,
     end
     return rhs_b
 end
+
 
 function first_problem_term(max_k, n, to_n=a_to_n(max_k,n), ctn=cumulative_a_to_n(max_k, n, to_n))
     for k in 2:max_k
