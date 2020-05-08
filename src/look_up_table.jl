@@ -20,11 +20,12 @@ function problem_terms(max_k, n, to_n=a_to_n(max_k,n), ctn=cumulative_a_to_n(max
     end
     x, y
 end
-function isinoverlap(max_k, rhs_b::BigInt, d::Dict{Int,Tuple{BigInt,BigInt}}, tn)
-    mask = (BigInt(1)<<max_k)-1
-     for term in max_k:-1:3
-         if haskey(d,term)
-             (l,u) = d[term]
+function isinoverlap(rhs_b::BigInt, od::Dict{Int,Tuple{BigInt,BigInt}}, tn)
+    leftmost_one = Int(trunc(log2(rhs_b)))
+    mask = (BigInt(1)<<leftmost_one)-1
+     for term in trunc(log2(rhs_b)):-1:3
+         if haskey(od,term)
+             (l,u) = od[term]
              if l<=mask&rhs_b<=u
                  return true
              end
@@ -110,7 +111,46 @@ function binary_search(max_k,
     end
     return rhs_b
 end
-
+function binary_search_fix_overlap(max_k, n, tn=a_to_n(max_k+1,n),
+                                    ctn=cumulative_a_to_n(max_k+1, n, tn),
+                                    target_value=tn[max_k+1])
+    # find binary representation of right hand side, rhs_b, and error
+    # closest to target value
+    k = max_k
+    current_target_value = target_value
+    one_at_k = BigInt(1)<<(max_k-1) # start with a one in max_k position
+    rhs_b = BigInt(0)
+    e = BigInt(0)
+    while k>1
+        is_tn_over = tn[k]>current_target_value # ex 1000
+        is_ctn_over = ctn[k-1]>current_target_value # ex 0111
+        if is_tn_over & ~is_ctn_over
+            # we are done.  pick lower error and return
+            e_tn = current_target_value - tn[k]
+            e_ctn[k-1] = current_target_value - ctn[k-1]
+            if abs(e_tn)<abs(e_ctn)
+                rhs_b = rhs_b || one_at_k
+                return rhs_b, e_tn
+            else
+                rhs_b = rhs_b || one_at_k-1
+                return rhs_b, e_ctn
+            end
+        end
+        if is_tn_over & is_ctn_over
+            # msb is 0.  set to 0 (reset) and move to next bit.
+            # nothing to do here ?
+        elseif ~is_tn_over & ~is_ctn_over
+            # msb is 1. set to one and move to next bit.
+            current_target_value -= tn[k]
+            rhs_b = rhs_b||one_at_k
+        else # ~is_tn_over & is_ctn_over
+            # recursive call with msb 1 and 0.  pick lower error
+        end
+        k-=1
+        one_at_k>>=1
+    end
+    error("binary_search_fix_overlap failed")
+end
 
 function first_problem_term(max_k, n, to_n=a_to_n(max_k,n), ctn=cumulative_a_to_n(max_k, n, to_n))
     for k in 2:max_k
