@@ -62,7 +62,7 @@ function overlap_limits(max_k, k, n,
     rhs_b_min = BigInt(1)<<(k-2)
     rhs_b_max = (BigInt(1)<<(k-1))-1
     target_value = c
-    b = binary_search(max_k,
+    rhs_b, b = binary_search(max_k,
                      rhs_b_min, rhs_b_max,
                      target_value,
                      n,tn)
@@ -74,7 +74,7 @@ function overlap_limits(max_k, k, n,
     rhs_b_min = BigInt(1)<<(k-1)
     rhs_b_max = (BigInt(1)<<k)-1
     target_value = d
-    e = binary_search(max_k,
+    rhs_b, e = binary_search(max_k,
                      rhs_b_min, rhs_b_max,
                      target_value,
                      n,tn) +1
@@ -109,7 +109,7 @@ function binary_search(max_k,
         rhs_b+=1
         e-=1
     end
-    return rhs_b
+    return rhs_b, e
 end
 function binary_search_fix_overlap(max_k, n, tn=a_to_n(max_k+1,n),
                                     ctn=cumulative_a_to_n(max_k+1, n, tn),
@@ -120,7 +120,7 @@ function binary_search_fix_overlap(max_k, n, tn=a_to_n(max_k+1,n),
     current_target_value = target_value
     one_at_k = BigInt(1)<<(max_k-1) # start with a one in max_k position
     rhs_b = BigInt(0)
-    e = BigInt(0)
+    e = BigInt(1)
     while k>1
         is_tn_over = tn[k]>current_target_value # ex 1000
         is_ctn_over = ctn[k-1]>current_target_value # ex 0111
@@ -159,7 +159,7 @@ function binary_search_fix_overlap(max_k, n, tn=a_to_n(max_k+1,n),
         k-=1
         one_at_k>>=1
     end
-    error("binary_search_fix_overlap failed")
+    rhs_b, current_target_value-1
 end
 
 function first_problem_term(max_k, n, to_n=a_to_n(max_k,n), ctn=cumulative_a_to_n(max_k, n, to_n))
