@@ -1,7 +1,7 @@
 module Sum_of_Powers
 
 export Solution, err
-export search, Best, SubSet, SlidingWindow, MabeyBest, BinaryIgnoreOverlap
+export search, Best, SubSet, SlidingWindow, MabeyBest, BinaryFixOverlap
 export BinaryCorrectOverlap, a_to_n, cumulative_a_to_n
 export write_file
 

@@ -18,6 +18,28 @@ function write_file(srange,
         write_io(io,srange,n,MabeyBest())
     end
 end
+function write_file(srange,
+                    n::Integer,
+                    ::BinaryFixOverlap,
+                    file_name_suffix::String="fixoverlap")
+    file = "data/n$(n)$(file_name_suffix).txt"
+    open(file,"a") do io
+        write_io(io,srange,n,BinaryFixOverlap())
+    end
+end
+function write_io(io::IO,srange,n::Integer,::BinaryFixOverlap)
+    maxs = maximum(srange)
+    tn=a_to_n(maxs,n)
+    ctn=cumulative_a_to_n(maxs, n, tn)
+    for s in srange
+        a,e = @timev search(BinaryFixOverlap(),s,n,tn,ctn)
+        sol = Solution(s,n,a,false)
+        @assert e == err(sol)
+        println(io,string(sol),",e=",string(e))
+        flush(io)
+    end
+end
+
 
 function write_io(io::IO,srange,n::Integer,sw::SlidingWindow=SlidingWindow(18))
     for s in srange

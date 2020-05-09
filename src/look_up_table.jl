@@ -127,12 +127,12 @@ function binary_search_fix_overlap(max_k, n, tn=a_to_n(max_k+1,n),
         if is_tn_over & ~is_ctn_over
             # we are done.  pick lower error and return
             e_tn = current_target_value - tn[k]
-            e_ctn[k-1] = current_target_value - ctn[k-1]
+            e_ctn = current_target_value - ctn[k-1]
             if abs(e_tn)<abs(e_ctn)
-                rhs_b = rhs_b || one_at_k
+                rhs_b = rhs_b | one_at_k
                 return rhs_b, e_tn
             else
-                rhs_b = rhs_b || one_at_k-1
+                rhs_b = rhs_b | one_at_k-1
                 return rhs_b, e_ctn
             end
         end
@@ -142,16 +142,16 @@ function binary_search_fix_overlap(max_k, n, tn=a_to_n(max_k+1,n),
         elseif ~is_tn_over & ~is_ctn_over
             # msb is 1. set to one and move to next bit.
             current_target_value -= tn[k]
-            rhs_b = rhs_b||one_at_k
+            rhs_b = rhs_b|one_at_k
         else # ~is_tn_over & is_ctn_over
             # recursive call with msb 1 and 0.  pick lower error
             rhs_b_1,e_1 = binary_search_fix_overlap(k-1,n,tn,ctn,current_target_value-tn[k])
             rhs_b_0,e_0 = binary_search_fix_overlap(k-1,n,tn,ctn,current_target_value)
-            if abs(e_1)<abs(e_2)
-                rhs_b = rhs_b || rhs_b_1 ||one_at_k
+            if abs(e_1)<abs(e_0)
+                rhs_b = rhs_b | rhs_b_1 |one_at_k
                 return rhs_b,e_1
             else
-                rhs_b = rhs_b || rhs_b_0
+                rhs_b = rhs_b | rhs_b_0
                 return rhs_b,e_0
             end
         end
