@@ -155,6 +155,7 @@ function binary_search_fix_overlap(max_k, n, tn=a_to_n(max_k+1,n),
                 return rhs_b,e_0
             end
         end
+        e==0 && return rhs_b,e
         k-=1
         one_at_k>>=1
     end
