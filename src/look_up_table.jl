@@ -159,7 +159,7 @@ function binary_search_fix_overlap(max_k, n, tn=a_to_n(max_k+1,n),
         k-=1
         one_at_k>>=1
     end
-    rhs_b, current_target_value-1
+    rhs_b|1, current_target_value-1
 end
 
 function first_problem_term(max_k, n, to_n=a_to_n(max_k,n), ctn=cumulative_a_to_n(max_k, n, to_n))
