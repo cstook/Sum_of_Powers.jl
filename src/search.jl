@@ -13,6 +13,7 @@ struct MabeyBest end # optimized version of Best
 struct IncludedTerms end
 struct BinaryIgnoreOverlap end
 struct BinaryFixOverlap end
+struct BFORandom end
 
 function search(::Best,s::Integer,n::Integer,::Vector=[])
     a = Array{Int}(1:s-1)
@@ -182,5 +183,12 @@ function search(::BinaryFixOverlap, s, n,
                     tn=a_to_n(s,n),
                     ctn=cumulative_a_to_n(s, n, tn))
     rhs_b,e = binary_search_fix_overlap(s-1,n,tn,ctn,tn[s])
+    Int.(collect(OnePositions(rhs_b))), e
+end
+
+function search(::BFORandom, s, n, k_random = 50,
+                    tn=a_to_n(s,n),
+                    ctn=cumulative_a_to_n(s, n, tn))
+    rhs_b,e = binary_search_fix_overlap_random(s-1,n,k_random,tn,ctn,tn[s])
     Int.(collect(OnePositions(rhs_b))), e
 end
