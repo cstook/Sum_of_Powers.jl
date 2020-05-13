@@ -120,7 +120,6 @@ function binary_search_fix_overlap(max_k, n, tn=a_to_n(max_k+1,n),
     current_target_value = target_value
     one_at_k = BigInt(1)<<(max_k-1) # start with a one in max_k position
     rhs_b = BigInt(0)
-    e = BigInt(1)
     while k>1
         is_tn_over = tn[k]>current_target_value # ex 1000
         is_ctn_over = ctn[k-1]>current_target_value # ex 0111
@@ -155,11 +154,11 @@ function binary_search_fix_overlap(max_k, n, tn=a_to_n(max_k+1,n),
                 return rhs_b,e_0
             end
         end
-        e==0 && return rhs_b,e
+        current_target_value ==0 && return rhs_b, current_target_value
         k-=1
         one_at_k>>=1
     end
-    if e>0 && (rhs_b&1)!=1
+    if current_target_value>0 && (rhs_b&1)!=1
         rhs_b = rhs_b|1
         current_target_value -= 1
     end
