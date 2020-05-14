@@ -20,6 +20,7 @@ struct Solution{T<:Integer,N}
         new{T,N}(s,n,Tuple(sorted_a))
     end
 end
+
 Base.show(io::IO, x::Solution) = print(io,string(x))
 
 # wrapper for Solution which will show error

@@ -14,6 +14,7 @@ include("look_up_table.jl")
 # include("random_binary.jl")
 include("ratio.jl")
 include("track_best.jl")
+include("zeros_only.jl")
 include("search.jl")
 include("write_file.jl")
 
