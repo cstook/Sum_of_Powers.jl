@@ -45,3 +45,19 @@ function below_split(k, one_at_k::BigInt, target::BigInt, rhs_b::BigInt, ct::Com
     target == 0 && return rhs_b
     nothing
 end
+
+function zero_io(io::IO, srange, n, ct)
+    @assert 2^n == ct.tn[2]
+    for s in srange
+      print(io,s," ")
+      print("s=",s,"  ")
+      @time rhs_b = look_for_zero(s,ct)
+      if ~isnothing(rhs_b)
+        sol = Solution(s,n,Int.(collect(OnePositions(rhs_b))),false)
+        @assert err(sol)==0
+        println(io)
+        println(io,sol)
+      end
+      flush(io)
+    end
+end
