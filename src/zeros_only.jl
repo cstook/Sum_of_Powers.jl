@@ -50,7 +50,7 @@ function zero_io(io::IO, srange, n, ct)
     @assert 2^n == ct.tn[2]
     for s in srange
       print(io,s," ")
-      print("s=",s,"  ")
+      print("s=",s," n=",n,"  ")
       @time rhs_b = look_for_zero(s,ct)
       if ~isnothing(rhs_b)
         sol = Solution(s,n,Int.(collect(OnePositions(rhs_b))),false)
