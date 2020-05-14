@@ -111,9 +111,11 @@ function binary_search(max_k,
     end
     return rhs_b, e
 end
+# TODO track best and abort if imposible to beat
 function binary_search_fix_overlap(max_k, n, tn=a_to_n(max_k+1,n),
                                     ctn=cumulative_a_to_n(max_k+1, n, tn),
-                                    target_value=tn[max_k+1])
+                                    target_value=tn[max_k+1],
+                                    fpt=first_problen_term(max_k,n,tn,ctn))
     # find binary representation of right hand side, rhs_b, and error
     # closest to target value
     k = max_k
@@ -123,7 +125,7 @@ function binary_search_fix_overlap(max_k, n, tn=a_to_n(max_k+1,n),
     while k>1
         is_tn_over = tn[k]>current_target_value # ex 1000
         is_ctn_over = ctn[k-1]>current_target_value # ex 0111
-        if is_tn_over & ~is_ctn_over
+        if k<fpt && is_tn_over && ~is_ctn_over
             # we are done.  pick lower error and return
             e_tn = current_target_value - tn[k]
             e_ctn = current_target_value - ctn[k-1]
@@ -135,17 +137,18 @@ function binary_search_fix_overlap(max_k, n, tn=a_to_n(max_k+1,n),
                 return rhs_b, e_ctn
             end
         end
-        if is_tn_over & is_ctn_over
+        if is_tn_over && is_ctn_over
             # msb is 0.  set to 0 (reset) and move to next bit.
             # nothing to do here ?
-        elseif ~is_tn_over & ~is_ctn_over
+        elseif ~is_tn_over && ~is_ctn_over
             # msb is 1. set to one and move to next bit.
+            # this is not always true
             current_target_value -= tn[k]
             rhs_b = rhs_b|one_at_k
         else # ~is_tn_over & is_ctn_over
             # recursive call with msb 1 and 0.  pick lower error
-            rhs_b_1,e_1 = binary_search_fix_overlap(k-1,n,tn,ctn,current_target_value-tn[k])
-            rhs_b_0,e_0 = binary_search_fix_overlap(k-1,n,tn,ctn,current_target_value)
+            rhs_b_1,e_1 = binary_search_fix_overlap(k-1,n,tn,ctn,current_target_value-tn[k],fpt)
+            rhs_b_0,e_0 = binary_search_fix_overlap(k-1,n,tn,ctn,current_target_value,fpt)
             if abs(e_1)<abs(e_0)
                 rhs_b = rhs_b | rhs_b_1 |one_at_k
                 return rhs_b,e_1
@@ -154,7 +157,7 @@ function binary_search_fix_overlap(max_k, n, tn=a_to_n(max_k+1,n),
                 return rhs_b,e_0
             end
         end
-        current_target_value ==0 && return rhs_b, current_target_value
+        current_target_value==0 && return rhs_b, current_target_value
         k-=1
         one_at_k>>=1
     end
@@ -170,7 +173,7 @@ function first_problem_term(max_k, n, to_n=a_to_n(max_k,n), ctn=cumulative_a_to_
         e = to_n[k]-ctn[k-1]
         e<0 && return k # is kth term less than the sum of all previous terms
     end
-    nothing
+    max_k+1 # not realy, but it's greater than max_k.
 end
 function drop_terms(max_k, n, to_n=a_to_n(max_k,n)) # this is wrong
     dt = Vector{Int}() # dropped terms

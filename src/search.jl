@@ -181,8 +181,10 @@ end
 
 function search(::BinaryFixOverlap, s, n,
                     tn=a_to_n(s,n),
-                    ctn=cumulative_a_to_n(s, n, tn))
-    rhs_b,e = binary_search_fix_overlap(s-1,n,tn,ctn,tn[s])
+                    ctn=cumulative_a_to_n(s, n, tn),
+                    fpt=first_problem_term(s-1,n,tn,ctn)
+                    )
+    rhs_b,e = binary_search_fix_overlap(s-1,n,tn,ctn,tn[s],fpt)
     Int.(collect(OnePositions(rhs_b))), e
 end
 
