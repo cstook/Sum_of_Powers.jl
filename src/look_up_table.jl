@@ -8,6 +8,7 @@ function cumulative_a_to_n(max_k, n, to_n=a_to_n(max_k,n))
     end
     x
 end
+# TODO delete this.  It is wrong!!!
 function problem_terms(max_k, n, to_n=a_to_n(max_k,n), ctn=cumulative_a_to_n(max_k, n, to_n))
     x = Vector{Int}() # problem terms
     y = Vector{BigInt}() # error
@@ -112,6 +113,7 @@ function binary_search(max_k,
     return rhs_b, e
 end
 # TODO track best and abort if imposible to beat
+# TODO rewrite this to consider multiple overlap
 function binary_search_fix_overlap(max_k, n, tn=a_to_n(max_k+1,n),
                                     ctn=cumulative_a_to_n(max_k+1, n, tn),
                                     target_value=tn[max_k+1],
@@ -174,6 +176,18 @@ function first_problem_term(max_k, n, to_n=a_to_n(max_k,n), ctn=cumulative_a_to_
         e<0 && return k # is kth term less than the sum of all previous terms
     end
     max_k+1 # not realy, but it's greater than max_k.
+end
+function overlap_terms(max_k, n, tn=a_to_n(max_k,n), ctn=cumulative_a_to_n(max_k,n,tn))
+    lookback = 1
+    ot = Vector{Int}()
+    for k in 2:max_k
+        e = tn[k]-ctn[k-lookback]
+        if e<0
+            push!(ot,k)
+            lookback+=1
+        end
+    end
+    ot
 end
 function drop_terms(max_k, n, to_n=a_to_n(max_k,n)) # this is wrong
     dt = Vector{Int}() # dropped terms
@@ -239,6 +253,8 @@ function sorted_up_to(max_k::Int, n::Int)
 end
 
 isallsorted(max_k,n) = sorted_up_to(max_k,n)==2^max_k-1
+
+
 
 
 
