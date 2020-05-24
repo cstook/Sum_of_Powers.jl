@@ -1,24 +1,23 @@
 # only look for zeros
 
-
 struct CommonThings
     tn :: Vector{BigInt}
     ctn :: Vector{BigInt}
-    max_k :: Int
+    k_max :: Int
     n :: Int
     fpt :: Int
 end
-function common_things(max_k, n)
-    tn = a_to_n(max_k, n)
-    ctn = cumulative_a_to_n(max_k, n, tn)
-    fpt = first_problem_term(max_k, n, tn, ctn)
-    CommonThings(tn,ctn,max_k,n,fpt)
+function common_things(k_max, n)
+    tn = a_to_n(k_max, n)
+    ctn = cumulative_a_to_n(k_max, n, tn)
+    fpt = first_problem_term(k_max, n, tn, ctn)
+    CommonThings(tn,ctn,k_max,n,fpt)
 end
 
 # return rhs_b for zero or nothing
 function look_for_zero(s, ct::CommonThings)
-    max_k = s-1
-    one_at_k = BigInt(1)<<(max_k-1) # start with a one in max_k position
+    k_max = s-1
+    one_at_k = BigInt(1)<<(k_max-1) # start with a one in k_max position
     target = ct.tn[s]
     rhs_b = BigInt(0)
     above_split(s-1,one_at_k,target,rhs_b,ct)

@@ -70,35 +70,35 @@ function search(sw::SlidingWindow, s::Int, n::Int, a::Vector{Int})
 end
 
 function search(::MabeyBest, s::Int, n::Int, ::Vector{Int}=Vector{Int}([]))
-    max_k = s-1
-    all_a_to_n = [BigInt(x)^n for x in 1:max_k]
+    k_max = s-1
+    all_a_to_n = [BigInt(x)^n for x in 1:k_max]
     lhs = BigInt(s)^n
-    select_a = if max_k<65
+    select_a = if k_max<65
         UInt64(0)
-    elseif max_k<129
+    elseif k_max<129
         UInt128(0)
     else
         BigInt(0)
     end
     best = Tracker(select_a,lhs)
-    _mabey_best!(select_a, best, lhs, max_k, all_a_to_n)
+    _mabey_best!(select_a, best, lhs, k_max, all_a_to_n)
     best_a, best_error = best()
     Int.(collect(OnePositions(best_a))), best_error
 end
-function _mabey_best!(select_a::T, best::Tracker, lhs::BigInt, max_k::Int, all_a_to_n) where T<:Integer
+function _mabey_best!(select_a::T, best::Tracker, lhs::BigInt, k_max::Int, all_a_to_n) where T<:Integer
     # select_a and best are modified
     is_error_zero(best) && return nothing
-    if max_k == 0
+    if k_max == 0
         best(select_a, lhs)
         return nothing
     end
-    split,e = find_split(lhs, max_k, all_a_to_n)
+    split,e = find_split(lhs, k_max, all_a_to_n)
     all_ones_to_split = select_a | T(2)^(split-1)-1
     best(all_ones_to_split, e)
-    split-1==max_k && return nothing
-    upper_view_a_to_n = view(all_a_to_n, split:max_k)
+    split-1==k_max && return nothing
+    upper_view_a_to_n = view(all_a_to_n, split:k_max)
     lower_view_a_to_n = view(all_a_to_n, 1:split-1)
-    upper_combination_range = 1:T(2)^(max_k-split+1)-1
+    upper_combination_range = 1:T(2)^(k_max-split+1)-1
     for upper_combination in upper_combination_range
         new_select_a = select_a ⊻ upper_combination<<(split-1)
         new_lhs = lhs-sum(upper_view_a_to_n[OnePositions(upper_combination)])
@@ -109,14 +109,14 @@ function _mabey_best!(select_a::T, best::Tracker, lhs::BigInt, max_k::Int, all_a
     end
     nothing
 end
-function find_split(lhs::BigInt, max_k::Int, all_a_to_n)
+function find_split(lhs::BigInt, k_max::Int, all_a_to_n)
     e = lhs
-    for k in 1:max_k
+    for k in 1:k_max
         previous_error = e
         e-=all_a_to_n[k]
         e<=0 && return k,previous_error
     end
-    return max_k+1,e
+    return k_max+1,e
 end
 function true_positions(x::BitArray{1})
     positions = Vector{Int}()
@@ -140,9 +140,9 @@ function max_s_for_all_a(n)
 end
 
 function search(::IncludedTerms, s::Int, n::Int)
-    max_k = s-1
-    to_n = a_to_n(max_k, n)
-    dt,it = drop_terms(max_k, n) # includes terms, dropped terms
+    k_max = s-1
+    to_n = a_to_n(k_max, n)
+    dt,it = drop_terms(k_max, n) # includes terms, dropped terms
     it_to_n = to_n[it] # [included terms ^ n]
     s_to_n = BigInt(s)^n
     min = BigInt(1)
@@ -167,11 +167,11 @@ function search(::IncludedTerms, s::Int, n::Int)
 end
 
 function _binary_ignore_overlap(s::Int, n::Int, tn=a_to_n(s,n))
-    max_k = s-1
+    k_max = s-1
     rhs_b_min = BigInt(1)
-    rhs_b_max = (BigInt(1)<<max_k)-1
+    rhs_b_max = (BigInt(1)<<k_max)-1
     target_value = tn[s]
-    binary_search(max_k, rhs_b_min, rhs_b_max, target_value, n, tn)
+    binary_search(k_max, rhs_b_min, rhs_b_max, target_value, n, tn)
 end
 function search(::BinaryIgnoreOverlap, s, n, tn=a_to_n(s,n))
     rhs_b = _binary_ignore_overlap(s, n, tn)

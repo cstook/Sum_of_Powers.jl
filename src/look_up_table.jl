@@ -1,26 +1,3 @@
-a_to_n(max_k, n) = [BigInt(x)^n for x in 1:max_k]
-function cumulative_a_to_n(max_k, n, to_n=a_to_n(max_k,n))
-    x = Vector{BigInt}(undef,max_k)
-    y = 0
-    for k in 1:max_k
-        y += to_n[k]
-        x[k] = y
-    end
-    x
-end
-# TODO delete this.  It is wrong!!!
-function problem_terms(max_k, n, to_n=a_to_n(max_k,n), ctn=cumulative_a_to_n(max_k, n, to_n))
-    x = Vector{Int}() # problem terms
-    y = Vector{BigInt}() # error
-    for k in 2:max_k
-        e = to_n[k]-ctn[k-1]
-        if e<0 # is kth term less than the sum of all previous terms
-            push!(x,k)
-            push!(y,e)
-        end
-    end
-    x, y
-end
 function isinoverlap(rhs_b::BigInt, od::Dict{Int,Tuple{BigInt,BigInt}}, tn)
     leftmost_one = Int(trunc(log2(rhs_b)))
     mask = (BigInt(1)<<leftmost_one)-1
@@ -35,21 +12,21 @@ function isinoverlap(rhs_b::BigInt, od::Dict{Int,Tuple{BigInt,BigInt}}, tn)
      end
      return false
 end
-function overlap_dict(max_k, n,
-                      tn=a_to_n(max_k+1,n),
-                      ctn=cumulative_a_to_n(max_k+1, n, tn))
+function overlap_dict(k_max, n,
+                      tn=a_to_n(k_max+1,n),
+                      ctn=cumulative_a_to_n(k_max+1, n, tn))
     d = Dict{Int,Tuple{BigInt,BigInt}}()
-    for k in 3:max_k
-        limits = overlap_limits(max_k, k, n, tn, ctn)
+    for k in 3:k_max
+        limits = overlap_limits(k_max, k, n, tn, ctn)
         isnothing(limits) || push!(d,k=>limits)
     end
     d
 end
 # find the extent of the overlap around k where the binary representation of the a_k's is
 # not in order.  Assume no double overlap for now.
-function overlap_limits(max_k, k, n,
-                        tn=a_to_n(max_k+1,n),
-                        ctn=cumulative_a_to_n(max_k+1, n, tn))
+function overlap_limits(k_max, k, n,
+                        tn=a_to_n(k_max+1,n),
+                        ctn=cumulative_a_to_n(k_max+1, n, tn))
     # for lack of better names we will use b,c,d,e
     # b,e will be the limits of the overlap to be found by this function
     # c,d are easy to understand from the code below
@@ -63,7 +40,7 @@ function overlap_limits(max_k, k, n,
     rhs_b_min = BigInt(1)<<(k-2)
     rhs_b_max = (BigInt(1)<<(k-1))-1
     target_value = c
-    rhs_b, b = binary_search(max_k,
+    rhs_b, b = binary_search(k_max,
                      rhs_b_min, rhs_b_max,
                      target_value,
                      n,tn)
@@ -75,7 +52,7 @@ function overlap_limits(max_k, k, n,
     rhs_b_min = BigInt(1)<<(k-1)
     rhs_b_max = (BigInt(1)<<k)-1
     target_value = d
-    rhs_b, e = binary_search(max_k,
+    rhs_b, e = binary_search(k_max,
                      rhs_b_min, rhs_b_max,
                      target_value,
                      n,tn) +1
@@ -85,11 +62,11 @@ function overlap_limits(max_k, k, n,
     @assert e<rhs_b_max
     b,e
 end
-function binary_search(max_k,
+function binary_search(k_max,
                       rhs_b_min, rhs_b_max,
                       target_value::BigInt,
                       n,
-                      tn=a_to_n(max_k,n))
+                      tn=a_to_n(k_max,n))
     # return binary representation of rhs adjacent to target value.
     # it will be the rhs below the target value.
     # assumes the rhs value is in the same order as its binary representation.
@@ -114,15 +91,15 @@ function binary_search(max_k,
 end
 # TODO track best and abort if imposible to beat
 # TODO rewrite this to consider multiple overlap
-function binary_search_fix_overlap(max_k, n, tn=a_to_n(max_k+1,n),
-                                    ctn=cumulative_a_to_n(max_k+1, n, tn),
-                                    target_value=tn[max_k+1],
-                                    fpt=first_problen_term(max_k,n,tn,ctn))
+function binary_search_fix_overlap(k_max, n, tn=a_to_n(k_max+1,n),
+                                    ctn=cumulative_a_to_n(k_max+1, n, tn),
+                                    target_value=tn[k_max+1],
+                                    fpt=first_problen_term(k_max,n,tn,ctn))
     # find binary representation of right hand side, rhs_b, and error
     # closest to target value
-    k = max_k
+    k = k_max
     current_target_value = target_value
-    one_at_k = BigInt(1)<<(max_k-1) # start with a one in max_k position
+    one_at_k = BigInt(1)<<(k_max-1) # start with a one in k_max position
     rhs_b = BigInt(0)
     while k>1
         is_tn_over = tn[k]>current_target_value # ex 1000
@@ -170,31 +147,20 @@ function binary_search_fix_overlap(max_k, n, tn=a_to_n(max_k+1,n),
     rhs_b, current_target_value
 end
 
-function first_problem_term(max_k, n, to_n=a_to_n(max_k,n), ctn=cumulative_a_to_n(max_k, n, to_n))
-    for k in 2:max_k
+function first_problem_term(k_max, n, to_n=a_to_n(k_max,n), ctn=cumulative_a_to_n(k_max, n, to_n))
+    for k in 2:k_max
         e = to_n[k]-ctn[k-1]
         e<0 && return k # is kth term less than the sum of all previous terms
     end
-    max_k+1 # not realy, but it's greater than max_k.
+    k_max+1 # not realy, but it's greater than k_max.
 end
-function overlap_terms(max_k, n, tn=a_to_n(max_k,n), ctn=cumulative_a_to_n(max_k,n,tn))
-    lookback = 1
-    ot = Vector{Int}()
-    for k in 2:max_k
-        e = tn[k]-ctn[k-lookback]
-        if e<0
-            push!(ot,k)
-            lookback+=1
-        end
-    end
-    ot
-end
-function drop_terms(max_k, n, to_n=a_to_n(max_k,n)) # this is wrong
+
+function drop_terms(k_max, n, to_n=a_to_n(k_max,n)) # this is wrong
     dt = Vector{Int}() # dropped terms
     it = Vector{Int}([1]) # included terms
     cumulative_included_terms = Vector{BigInt}([to_n[1]])
     look_back=1
-    for k in 2:max_k
+    for k in 2:k_max
         prev_cit = cumulative_included_terms[k-look_back]
         lhs = to_n[k]- prev_cit
         if lhs<0
@@ -240,9 +206,9 @@ function create_look_up_table(bits::Int, n::Int)
     to_n, sum_combination
 end
 
-function sorted_up_to(max_k::Int, n::Int)
-    to_n = [BigInt(x)^n for x in 1:max_k]
-    table_length = 2^max_k-1
+function sorted_up_to(k_max::Int, n::Int)
+    to_n = [BigInt(x)^n for x in 1:k_max]
+    table_length = 2^k_max-1
     previous_sum = BigInt(0)
     for a in 1:table_length
         new_sum= sum(to_n[OnePositions(a)])
@@ -252,7 +218,7 @@ function sorted_up_to(max_k::Int, n::Int)
     return table_length
 end
 
-isallsorted(max_k,n) = sorted_up_to(max_k,n)==2^max_k-1
+isallsorted(k_max,n) = sorted_up_to(k_max,n)==2^k_max-1
 
 
 

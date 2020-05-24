@@ -1,0 +1,39 @@
+
+searchsorted by=<transform> keyword question
+
+I thought that the transform specified with the by keyword was a function
+applied before the comparison.  I don't understand the last three examples below.
+Probably missing something obvious.
+
+How does the by keyword work?
+
+```
+julia> searchsorted([11,12,13,14,15],1)
+1:0
+
+julia> searchsorted([11,12,13,14,15],100)
+6:5
+
+julia> searchsorted([11,12,13,14,15],13)
+3:3
+
+julia> searchsorted([-15,-14,-13,-12,-11], 13)
+6:5
+
+julia> searchsorted([-11,-12,-13,-14,-15], 13, by=abs)
+3:3
+
+julia> searchsorted([-11,-12,-13,-14,-15], 13, by=x->abs(x))
+3:3
+
+julia>
+
+julia> searchsorted([11,12,13,14,15],13, by= x->x^2) # should be 1:0 ?
+3:3
+
+julia> searchsorted([11,12,13,14,15],13, by= x->x+100) # should be 1:0 ?
+3:3
+
+julia> searchsorted([11,12,13,14,15],130, by= x->x+100) # should be 3:3 ?
+6:5
+```

@@ -1,12 +1,12 @@
-function binary_search_fix_overlap_random(max_k, n, k_random,
-                                    tn=a_to_n(max_k+1,n),
-                                    ctn=cumulative_a_to_n(max_k+1, n, tn),
-                                    target_value=tn[max_k+1])
+function binary_search_fix_overlap_random(k_max, n, k_random,
+                                    tn=a_to_n(k_max+1,n),
+                                    ctn=cumulative_a_to_n(k_max+1, n, tn),
+                                    target_value=tn[k_max+1])
     # find binary representation of right hand side, rhs_b, and error
     # closest to target value
-    k = max_k
+    k = k_max
     current_target_value = target_value
-    one_at_k = BigInt(1)<<(max_k-1) # start with a one in max_k position
+    one_at_k = BigInt(1)<<(k_max-1) # start with a one in k_max position
     rhs_b = BigInt(0)
     e = BigInt(1)
     while k>1

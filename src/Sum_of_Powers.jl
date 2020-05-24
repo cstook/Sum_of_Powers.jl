@@ -1,4 +1,5 @@
 module Sum_of_Powers
+using OffsetArrays
 
 export Solution, err
 export search, Best, SubSet, SlidingWindow, MabeyBest, BinaryFixOverlap
@@ -8,8 +9,12 @@ export write_file
 
 import Base.string
 
+include("util.jl")
 include("Solution.jl")
 include("OnePositions.jl")
+include("multiple_overlap.jl")
+
+
 include("look_up_table.jl")
 # include("random_binary.jl")
 include("ratio.jl")
