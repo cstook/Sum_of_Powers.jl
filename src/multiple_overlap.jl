@@ -27,13 +27,13 @@ function make_table(k_l, k_h, n, tn=[BigInt(x)^n for x in k_l:k_h])
     table
 end
 
-struct IsOneData{T1,T2,T3}
+struct IsOneData{T1,T2,T3,T4}
     tn_view :: T1
     overlap :: Int
     use_table_below :: Int
     table :: T2
-    index :: Int
-    table_index :: T3
+    index :: T3
+    table_index :: T4
     table_msb_bitmask :: Int
 end
 function use_table_below(bit_position::Int, cp::CommonParameters)
@@ -51,21 +51,27 @@ function is_one_data(bit_position::Int,
     overlap = cp.on[bit_position]
     n = cp.n
     tn = cp.tn
-    k_l = bit_position-utb
-    k_h = bit_position-overlap
+    k_l = bit_position-overlap
+    k_h = bit_position
     if utb>0
+        table_l = bit_position-overlap
+        table_h = bit_position-utb
         table = make_table(k_l,k_h,n,tn)
-        index = sortperm(t)
+        index = sortperm(table)
+        table_index = table[index]
+        table_msb_bitmask = 1 << table_h-table_l
     else
         table = nothing
-        index = 0
+        index = nothing
+        table_index = nothing
+        table_msb_bitmask = 0 
     end
-    tn_view = view(cp.tn,k_l,k_h)
-    table_msb_bitmask = 1 << k_h-k_l
-    IsOneData(overlap, utb, table, index, table[index], table_msb_bitmask)
+    tn_view = view(cp.tn,k_l:k_h)
+
+    IsOneData(tn_view, overlap, utb, table, index, table_index, table_msb_bitmask)
 end
 # determine if one_at_k should be included in result, updates lhs
-function isone(lhs::Int,
+function isone(lhs::BigInt,
                iod::IsOneData,
                current_position::Int = iod.overlap)
     tn = iod.tn_view
