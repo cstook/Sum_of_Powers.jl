@@ -27,22 +27,108 @@ function make_table(k_l, k_h, n, tn=[BigInt(x)^n for x in k_l:k_h])
     table
 end
 
-struct IsOneData{T1,T2}
+struct IsOneData{T1,T2,T3}
     tn_view :: T1
     overlap :: Int
     use_table_below :: Int
     table :: T2
     index :: Int
+    table_index :: T3
+    table_msb_bitmask :: Int
 end
 function use_table_below(bit_position::Int, cp::CommonParameters)
-
+    overlap = cp.on[bit_position]
+    # need to optimize this
+    if overlap<8
+        return -1
+    else
+        return overlap-5
+    end
 end
 function is_one_data(bit_position::Int,
                      cp::CommonParameters,
                      utb::Int=use_table_below(bit_position,cp))
-
+    overlap = cp.on[bit_position]
+    n = cp.n
+    tn = cp.tn
+    k_l = bit_position-utb
+    k_h = bit_position-overlap
+    if utb>0
+        table = make_table(k_l,k_h,n,tn)
+        index = sortperm(t)
+    else
+        table = nothing
+        index = 0
+    end
+    tn_view = view(cp.tn,k_l,k_h)
+    table_msb_bitmask = 1 << k_h-k_l
+    IsOneData(overlap, utb, table, index, table[index], table_msb_bitmask)
 end
-# determine if one_at_k should be included in result
-function isone(one_at_k::BigInt, lhs::BigInt, iod::IsOneData)
-
+# determine if one_at_k should be included in result, updates lhs
+function isone(lhs::Int,
+               iod::IsOneData,
+               current_position::Int = iod.overlap)
+    tn = iod.tn_view
+    utb = iod.use_table_below
+    table = iod.table
+    index = iod.index
+    table_index = iod.table_index
+    table_msb_bitmask = iod.table_msb_bitmask
+    if current_position<utb  # use the lookup table
+        f = searchsortedfirst(table_index, lhs)
+            lhs_a = lhs-table_index[f]
+            if f>1
+                lhs_b = lhs-table_index[f-1]
+                if abs(lhs_a)<abs(lhs_b)
+                    i = index[f]
+                    ismsbset = (table_msb_bitmask & i)>0
+                    return ismsbset, lhs_a
+                else
+                    i = index[f-1]
+                    ismsbset = (table_msb_bitmask & i)>0
+                    return ismsbset, lhs_b
+                end
+            end
+        i = index[f]
+        ismsbset = (table_msb_bitmask & i)>0
+        return ismsbset, lhs_a
+    end
+    new_lhs = lhs - tn[current_position+1]
+    if current_position<1
+        if new_lhs>=0
+            return true, new_lhs
+        else
+            return false, lhs
+        end
+    else
+        junk_isone, lhs_one = isone(new_lhs, iod, current_position-1)
+        junk_isone, lhs_zero = isone(lhs, iod, current_position-1)
+        if abs(lhs_one)<abs(lhs_zero)
+            return true, new_lhs
+        else
+            return false, lhs
+        end
+    end
+end
+function multiple_overlap(s, cp::CommonParameters)
+    tn = cp.tn
+    k_max = s-1
+    one_at_k = BigInt(1)<<(k_max-1) # start with a one in k_max position
+    lhs = tn[s]
+    rhs_b = BigInt(0)
+    best = Tracker(rhs_b,lhs)
+    for k in k_max:-1:1
+        one_lhs = lhs - tn[k]
+        one_rhs_b = rhs_b | one_at_k
+        best(rhs_b, lhs)
+        best(one_rhs_b, one_lhs)
+        iod = is_one_data(k,cp)
+        is_iod_msb_one, junk_lhs = isone(lhs,iod)
+        if is_iod_msb_one
+            rhs_b = one_rhs_b
+            lhs = one_lhs
+        end
+        one_at_k >>= 1
+    end
+    best()
 end
