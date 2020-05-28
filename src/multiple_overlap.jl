@@ -64,7 +64,7 @@ function is_one_data(bit_position::Int,
         table = nothing
         index = nothing
         table_index = nothing
-        table_msb_bitmask = 0 
+        table_msb_bitmask = 0
     end
     tn_view = view(cp.tn,k_l:k_h)
 
@@ -74,6 +74,8 @@ end
 function isone(lhs::BigInt,
                iod::IsOneData,
                current_position::Int = iod.overlap)
+   debugprint_true() = println(' '^(3*(iod.overlap-current_position)),current_position, true, new_lhs," ",tn[current_position+1])
+   debugprint_false() = println(' '^(3*(iod.overlap-current_position)),current_position, false, lhs," ",tn[current_position+1])
     tn = iod.tn_view
     utb = iod.use_table_below
     table = iod.table
@@ -100,22 +102,32 @@ function isone(lhs::BigInt,
         return ismsbset, lhs_a
     end
     new_lhs = lhs - tn[current_position+1]
+     if new_lhs == 0
+         debugprint_true()
+         return true, new_lhs
+     end
     if current_position<1
-        if new_lhs>=0
+        if new_lhs>0
+            debugprint_true()
             return true, new_lhs
         else
+            debugprint_false()
             return false, lhs
         end
     else
-        junk_isone, lhs_one = isone(new_lhs, iod, current_position-1)
         junk_isone, lhs_zero = isone(lhs, iod, current_position-1)
-        if abs(lhs_one)<abs(lhs_zero)
-            return true, new_lhs
+        junk_isone, lhs_one = isone(new_lhs, iod, current_position-1)
+        println("cp=",current_position," lhs_zero=",lhs_zero,"  lhs_one=",lhs_one)
+        if  lhs_one>=0 & abs(lhs_one)<abs(lhs_zero)
+            debugprint_true()
+            return true, lhs_one
         else
-            return false, lhs
+            debugprint_false()
+            return false, lhs_zero
         end
     end
 end
+
 function multiple_overlap(s, cp::CommonParameters)
     tn = cp.tn
     k_max = s-1
@@ -123,7 +135,9 @@ function multiple_overlap(s, cp::CommonParameters)
     lhs = tn[s]
     rhs_b = BigInt(0)
     best = Tracker(rhs_b,lhs)
+    println();println("------------------------")
     for k in k_max:-1:1
+        println("k=",k)
         one_lhs = lhs - tn[k]
         one_rhs_b = rhs_b | one_at_k
         best(rhs_b, lhs)
