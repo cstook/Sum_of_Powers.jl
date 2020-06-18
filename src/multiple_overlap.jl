@@ -49,6 +49,7 @@ function is_one_data(bit_position::Int,
                      cp::CommonParameters,
                      utb::Int=use_table_below(bit_position,cp))
     overlap = cp.on[bit_position]
+    overlap >0 && (overlap+=1)
     n = cp.n
     tn = cp.tn
     k_l = bit_position-overlap
@@ -74,8 +75,6 @@ end
 function isone(lhs::BigInt,
                iod::IsOneData,
                current_position::Int = iod.overlap)
-   debugprint_true() = println(' '^(3*(iod.overlap-current_position)),current_position, true, new_lhs," ",tn[current_position+1])
-   debugprint_false() = println(' '^(3*(iod.overlap-current_position)),current_position, false, lhs," ",tn[current_position+1])
     tn = iod.tn_view
     utb = iod.use_table_below
     table = iod.table
@@ -102,27 +101,23 @@ function isone(lhs::BigInt,
         return ismsbset, lhs_a
     end
     new_lhs = lhs - tn[current_position+1]
+    println("    cp=",current_position,"  lhs=",lhs," new_lhs=",new_lhs)
      if new_lhs == 0
-         debugprint_true()
          return true, new_lhs
      end
     if current_position<1
         if new_lhs>0
-            debugprint_true()
             return true, new_lhs
         else
-            debugprint_false()
             return false, lhs
         end
     else
         junk_isone, lhs_zero = isone(lhs, iod, current_position-1)
         junk_isone, lhs_one = isone(new_lhs, iod, current_position-1)
         println("cp=",current_position," lhs_zero=",lhs_zero,"  lhs_one=",lhs_one)
-        if  lhs_one>=0 & abs(lhs_one)<abs(lhs_zero)
-            debugprint_true()
+        if lhs_one>=0 & abs(lhs_one)<abs(lhs_zero)
             return true, lhs_one
         else
-            debugprint_false()
             return false, lhs_zero
         end
     end
