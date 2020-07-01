@@ -1,5 +1,10 @@
 module Sum_of_Powers
 using OffsetArrays
+using Statistics
+using StatsBase
+using Plots
+using StatsPlots
+using KernelDensity
 
 export Solution, err
 export search, Best, SubSet, SlidingWindow, MabeyBest, BinaryFixOverlap

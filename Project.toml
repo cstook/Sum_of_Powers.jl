@@ -5,8 +5,10 @@ version = "0.1.0"
 
 [deps]
 BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
+KernelDensity = "5ab0869b-81aa-558d-bb23-cbf5423bbe9b"
 OffsetArrays = "6fe1bfb0-de20-5000-8ca7-80f57d26f881"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
+StatsPlots = "f3b207a7-027a-5e70-b257-86293d7955fd"
 
 [compat]
 julia = "1.4"
